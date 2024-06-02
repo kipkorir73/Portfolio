@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-HHRgFB+xMbj5s0vXyL3gLl2dCkSjKte+iB+NZ1aHfWGMMI+USWD4tIEU1VNxNxqFEG4tG4lH4DDfjCjzv0ez9w==" crossorigin="anonymous" />
+
+    <link rel="stylesheet" href="main.css">
+    <title>Collins Portfolio</title>
+</head>
+<body>
+    <header id="header">
+        <div class="container">
+            <nav class="navbar">
+                <img src="images/Collins._1_-removebg-preview.png" class="logo" alt="Logo">
+                <button class="menu-toggle" aria-expanded="false" aria-controls="menu">☰</button>
+                <ul class="menu" id="menu">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#skills">Skills</a></li>
+                    <li><a href="#Projects">Projects</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main>
+        <!-- Home Section -->
+        <div id="home" class="main-content home-section">
+            <div class="profile-pic">
+                <img src="images/Collins.profile" alt="Your Picture">
+            </div>
+            <div class="home-text">
+                <h1>Hello, I'm <br> <span class="name">Collins Kipkorir</span></h1>
+                <h2>Front-end Developer</h2>
+                <div class="buttons">
+                    <a href="images/New Uploaded Resume-1.pdf" class="btn download" download>Download CV</a>
+                    <a href="#contact" class="btn contact">Contact Info</a>
+                </div>
+                <div class="social-icons">
+                    <a href="https://github.com/kipkorir73" target="_blank"><i class="fa fa-github"></i></a>
+                    <a href="https://www.linkedin.com/in/collins-kipkorir-10b725223/" target="_blank"><i class="fa fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Me Section -->
+        <div id="about" class="main-content">
+            <div class="about-container">
+                <div class="cards about-details">
+                    <div class="card">
+                        <i class="fa fa-graduation-cap"></i>
+                        <h3>Education</h3>
+                        <p>Electronics and Computer Engineering, Kirinyaga University</p>
+                        <p>Moringa School, Software Engineering</p>
+                    </div>
+                    <div class="card">
+                        <i class="fa fa-briefcase"></i>
+                        <h3>Experience</h3>
+                        <p>1 year of front-end development experience</p>
+                    </div>
+                </div>
+                <div class="description about-description">
+                    <h2>About Me</h2>
+                    <p>Hello, I'm <span class="name">Collins Kipkorir</span>, a passionate front-end developer based in Kenya. I specialize in creating responsive and engaging web interfaces using the latest technologies.</p>
+                    <p>I hold a degree in Electronics and Computer Engineering from Kirinyaga University and have a strong foundation in software development. Additionally, I completed a software engineering boot camp focused on front-end development, further honing my skills in this area.</p>
+                    <p>I have expertise in technologies such as React, HTML, CSS, and Tailwind CSS, allowing me to bring designs to life with clean and efficient code.</p>
+                    <p>Feel free to connect with me on GitHub or LinkedIn to learn more about my work and experiences. I'm always excited to collaborate on innovative projects and contribute to meaningful initiatives!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skills Section -->
+        <div id="skills" class="main-content">
+            <div class="skills-container">
+                <div class="cards skills-details">
+                    <!-- Frontend Skills -->
+                    <div class="card">
+                        <i class="fa fa-laptop-code"></i>
+                        <h3>Frontend</h3>
+                        <ul class="skills-list">
+                            <li><i class="fa fa-check"></i> HTML</li>
+                            <li><i class="fa fa-check"></i> CSS</li>
+                            <li><i class="fa fa-check"></i> React</li>
+                            <li><i class="fa fa-check"></i> JavaScript</li>
+                        </ul>
+                    </div>
+                    <!-- Backend Skills -->
+                    <div class="card">
+                        <i class="fa fa-server"></i>
+                        <h3>Backend</h3>
+                        <ul class="skills-list">
+                            <li><i class="fa fa-check"></i> Python</li>
+                            <li><i class="fa fa-check"></i> Flask</li>
+                            <li><i class="fa fa-check"></i> SQL</li>
+                            <li><i class="fa fa-check"></i> C</li>
+                            <li><i class="fa fa-check"></i> C++</li>
+                        </ul>
+                    </div>
+                    <!-- Additional Skills -->
+                    <div class="card">
+                        <i class="fa fa-book"></i>
+                        <h3>Additional Skills</h3>
+                        <ul class="skills-list">
+                            <li><i class="fa fa-check"></i> Digital Electronics</li>
+                            <li><i class="fa fa-check"></i> Embedded Systems</li>
+                            <li><i class="fa fa-check"></i> Analog Circuit Design</li>
+                            <li><i class="fa fa-check"></i> Microcontroller Architecture</li>
+                            <li><i class="fa fa-check"></i> Computer Networking</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Projects Section -->
+        <div id="Projects" class="main-content">
+            <h2 class="projects-title">PROJECTS</h2>
+            <div class="project-container">
+                <!-- Project 1 -->
+                <div class="project-card">
+                    <img src="images/Screenshot from 2024-06-01 01-51-32.png" alt="Project 1">
+                    <div class="project-buttons">
+                        <a href="https://github.com/ArshavineRoy/school-management-system" class="btn github">GitHub</a>
+                        <a href="https://bamac-school-management-system.netlify.app/" class="btn live-demo">Demo</a>
+                    </div>
+                </div>
+                <!-- Project 2 -->
+                <div class="project-card">
+                    <img src="images/Screenshot from 2024-06-01 02-03-28.png" alt="Project 2">
+                    <div class="project-buttons">
+                        <a href="https://github.com/Helder-Lucau/Pata-Nafuu" class="btn github">GitHub</a>
+                        <a href="https://patanafuu.netlify.app/" class="btn live-demo">Demo</a>
+                    </div>
+                </div>
+                <!-- Project 3 -->
+                <div class="project-card">
+                    <img src="images/Screenshot from 2024-06-01 02-21-43.png" alt="Project 3">
+                    <div class="project-buttons">
+                        <a href="https://github.com/kipkorir73/Phase-1project" class="btn github">GitHub</a>
+                        <a href="https://phase-1project.vercel.app/" class="btn live-demo">Demo</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Section -->
+        <!-- Contact Section -->
+<section id="contact">
+    <div class="contact-container">
+        <div class="contact-card">
+            <h2>Get in Touch</h2>
+            <div class="contact-info">
+                <div class="social-icons">
+                    <a href="https://github.com/kipkorir73"><i class="fa fa-github"></i></a>
+                    <a href="https://www.linkedin.com/in/collins-kipkorir-10b725223/"><i class="fa fa-linkedin"></i></a>
+                    <a href="tel:+254111998133"><i class="fa fa-phone"></i></a>
+                    <a href="mailto:kipkorirc583@gmail.com"><i class="fa fa-envelope"></i></a>
+                </div>
+                <div class="messages">
+                    <p class="success-message" id="success-message">Message sent successfully. Please wait for our response via email.</p>
+                    <p class="error-message" id="error-message">There was an error sending your message. Please try again.</p>
+                </div>
+                <form id="contact-form">
+                    <input type="text" name="name" placeholder="Your Name" required>
+                    <input type="email" name="email" placeholder="Your Email" required>
+                    <textarea name="message" placeholder="Your Message" required></textarea>
+                    <button type="submit" class="btn send">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+    </main>
+    <footer>
+        <p>&copy; 2024 Collins Kipkorir. All rights reserved.</p>
+    </footer>
+    <script src="script.js"></script>
+
+</body>
+</html>
