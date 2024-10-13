@@ -1,31 +1,16 @@
-const menuToggle = document.querySelector('.menu-toggle');
-const menu = document.querySelector('.menu');
+const form = document.getElementById('contact-form');
+const successMessage = document.getElementById('success-message');
 
-menuToggle.addEventListener('click', () => {
-    menu.classList.toggle('active');
-});
-
-const contactForm = document.querySelector('.contact-form');
-const contactFormInputs = contactForm.querySelectorAll('input, textarea');
-
-contactForm.addEventListener('submit', (e) => {
+form.addEventListener('submit', (e) => {
     e.preventDefault();
-    const formData = new FormData(contactForm);
-    fetch('/contact', {
-        method: 'POST',
-        body: formData,
-    })
-        .then((response) => response.json())
-        .then((data) => console.log(data))
-        .catch((error) => console.error(error));
-});
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const message = document.getElementById('message').value;
 
-contactFormInputs.forEach((input) => {
-    input.addEventListener('focus', () => {
-        input.classList.add('focused');
-    });
+    // Send message logic here
 
-    input.addEventListener('blur', () => {
-        input.classList.remove('focused');
-    });
+    successMessage.classList.add('show');
+    setTimeout(() => {
+        successMessage.classList.remove('show');
+    }, 3000);
 });
