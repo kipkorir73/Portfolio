@@ -3,7 +3,7 @@ body {
     font-family: 'Poppins', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f9f9f9; /* Light background color */
+    background-color: #f4f6f9; /* Light background color */
     color: #333;
 }
 
@@ -13,9 +13,10 @@ h1, h2, h3, h4 {
 
 /* Header Styles */
 header {
-    background-color: #34495E; /* Header background */
+    background-color: #2C3E50; /* Darker header background */
     color: white;
-    padding: 1rem 0;
+    padding: 10px 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
 .navbar {
@@ -34,6 +35,8 @@ header {
 .menu {
     list-style: none;
     display: flex;
+    margin: 0;
+    padding: 0;
 }
 
 .menu li {
@@ -43,12 +46,29 @@ header {
 .menu a {
     color: white;
     text-decoration: none;
-    font-weight: 700;
+    font-weight: 600;
     transition: color 0.3s;
+    padding: 5px 10px; /* Add padding for better click area */
 }
 
 .menu a:hover {
     color: #1ABC9C; /* Change color on hover */
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column; /* Stack items vertically */
+    }
+
+    .menu {
+        flex-direction: column;
+        margin-top: 10px;
+    }
+
+    .menu li {
+        margin: 5px 0; /* Vertical spacing */
+    }
 }
 
 /* Main Content Styles */
@@ -63,6 +83,7 @@ header {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap; /* Allow wrapping on small screens */
 }
 
 .profile-pic img {
@@ -88,11 +109,12 @@ header {
     border-radius: 25px; /* Rounded button */
     cursor: pointer;
     text-decoration: none;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.3s;
 }
 
 .btn:hover {
     background-color: #16A085; /* Button hover color */
+    transform: translateY(-2px); /* Slight lift effect */
 }
 
 .social-icons a {
@@ -153,7 +175,7 @@ header {
 .project-container {
     display: flex;
     justify-content: space-between;
-    flex-wrap: wrap;
+    flex-wrap: wrap; /* Allow wrapping on small screens */
 }
 
 .project-card {
@@ -162,7 +184,7 @@ header {
     margin: 10px;
     padding: 10px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    width: 30%; /* Card width */
+    flex: 1 1 calc(33% - 20px); /* Responsive width for larger screens */
     transition: transform 0.3s;
 }
 
@@ -170,13 +192,11 @@ header {
     transform: translateY(-5px); /* Lift effect on hover */
 }
 
-.project-buttons {
-    text-align: center;
-}
-
-.project-buttons .btn {
-    display: inline-block;
-    margin: 5px 0;
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .project-card {
+        flex: 1 1 calc(100% - 20px); /* Full width on small screens */
+    }
 }
 
 /* Testimonials Section */
@@ -238,8 +258,56 @@ header {
 
 /* Footer Styles */
 footer {
-    background-color: #34495E; /* Footer background */
+    background-color: #2C3E50; /* Darker footer background */
     color: white;
     text-align: center;
     padding: 1rem 0;
+}
+/* Testimonials Section */
+.testimonials-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.testimonial-card {
+    background-color: #ffffff;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin: 10px 0;
+    max-width: 600px; /* Max width for testimonial card */
+    text-align: center;
+    transition: transform 0.3s;
+}
+
+.testimonial-card:hover {
+    transform: translateY(-5px); /* Lift effect on hover */
+}
+
+.testimonial-image {
+    width: 80px; /* Image size */
+    height: 80px; /* Image size */
+    border-radius: 50%; /* Circular image */
+    margin-bottom: 10px; /* Space between image and text */
+}
+
+.add-testimonial {
+    margin: 20px 0;
+    max-width: 600px; /* Max width for testimonial form */
+    text-align: center;
+}
+
+.add-testimonial input, 
+.add-testimonial textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.add-testimonial button {
+    margin-top: 10px;
 }
