@@ -6,32 +6,34 @@
     <title>Collins Portfolio</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-HHRgFB+xMbj5s0vXyL3gLl2dCkSjKte+iB+NZ1aHfWGMMI+USWD4tIEU1VNxNxqFEG4tG4lH4DDfjCjzv0ez9w==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-HHRgFB+xMbj5s0vXyL3gLl2dCkSjKte+iB+NZ1aHfWGMMI+USWD4tIEU1VNxqFEG4tG4lH4DDfjCjzv0ez9w==" crossorigin="anonymous" />
     <link rel="stylesheet" href="main.css">
 </head>
 <body>
     <header id="header">
         <div class="container">
             <nav class="navbar">
-                <img src="images/Collins._1_-removebg-preview.png" class="logo" alt="Logo">
-                <button class="menu-toggle" aria-expanded="false" aria-controls="menu">☰</button>
-                <ul class="menu" id="menu">
+                <div class="logo">
+                    <img src="images/Collins._1_-removebg-preview.png" alt="Logo">
+                </div>
+                <ul class="menu">
                     <li><a href="#home">Home</a></li>
                     <li><a href="#about">About</a></li>
                     <li><a href="#skills">Skills</a></li>
-                    <li><a href="#Projects">Projects</a></li>
+                    <li><a href="#experience">Experience</a></li>
+                    <li><a href="#projects">Projects</a></li>
+                    <li><a href="#education">Education</a></li>
                     <li><a href="#contact">Contact</a></li>
                 </ul>
+                <button class="menu-toggle" aria-expanded="false" aria-controls="menu">☰</button>
             </nav>
         </div>
     </header>
     <main>
         <!-- Home Section -->
         <div id="home" class="main-content home-section">
-            <div class="profile-pic">
-                <img src="images/Collins.profile" alt="Your Picture">
-            </div>
-            <div class="home-text">
+            <div class="profile">
+                <img src="images/Collins.profile" alt="Your Picture" class="profile-picture">
                 <h1>Hello, I'm <br> <span class="name">Collins Kipkorir</span></h1>
                 <h2>Front-end Developer</h2>
                 <div class="buttons">
@@ -52,78 +54,117 @@
                     <div class="card">
                         <i class="fa fa-graduation-cap"></i>
                         <h3>Education</h3>
-                        <p>Electronics and Computer Engineering, Kirinyaga University</p>
-                        <p>Moringa School, Software Engineering</p>
+                        <p>Bachelor of Technology in Electronics and Computer Engineering, Kirinyaga University</p>
+                        <p>Software Engineering Bootcamp, Moringa School</p>
                     </div>
                     <div class="card">
                         <i class="fa fa-briefcase"></i>
                         <h3>Experience</h3>
-                        <p>1 year of front-end development experience</p>
+                        <p>Junior Front-end Developer, CodeCavers (May 2024 - Current)</p>
+                        <p>Software Engineer, Moringa School (May 2023 - Nov 2023)</p>
                     </div>
                 </div>
                 <div class="description about-description">
                     <h2>About Me</h2>
                     <p>Hello, I'm <span class="name">Collins Kipkorir</span>, a passionate front-end developer based in Kenya. I specialize in creating responsive and engaging web interfaces using the latest technologies.</p>
                     <p>I hold a degree in Electronics and Computer Engineering from Kirinyaga University and have a strong foundation in software development. Additionally, I completed a software engineering boot camp focused on front-end development, further honing my skills in this area.</p>
-                    <p>I have expertise in technologies such as React, HTML, CSS, and Tailwind CSS, allowing me to bring designs to life with clean and efficient code.</p>
-                    <p>Feel free to connect with me on GitHub or LinkedIn to learn more about my work and experiences. I'm always excited to collaborate on innovative projects and contribute to meaningful initiatives!</p>
+                    <p>I have expertise in technologies such as React, HTML, CSS, and Tailwind CSS, allowing me to craft visually appealing and user-friendly interfaces. I'm dedicated to staying up-to-date with the latest industry trends and continuously improving my skills.</p>
                 </div>
             </div>
-        </ div>
+        </div>
 
         <!-- Skills Section -->
         <div id="skills" class="main-content">
             <div class="skills-container">
                 <h2>Skills</h2>
-                <div class="cards skills-cards">
+                <div class="cards skills-details">
                     <div class="card">
                         <i class="fa fa-html5"></i>
                         <h3>HTML</h3>
-                        <p>Proficient in HTML5, semantic HTML, and accessibility guidelines</p>
+                        <p>Proficient in HTML5, with a strong understanding of semantic elements and accessibility.</p>
                     </div>
                     <div class="card">
                         <i class="fa fa-css3"></i>
                         <h3>CSS</h3>
-                        <p>Expertise in CSS3, including preprocessors like Sass and Less, and CSS frameworks like Bootstrap and Tailwind CSS</p>
+                        <p>Expertise in CSS3, including preprocessors like Sass and CSS-in-JS solutions like Styled Components.</p>
                     </div>
                     <div class="card">
                         <i class="fa fa-react"></i>
                         <h3>React</h3>
-                        <p>Proficient in React, including React Hooks, Context API, and React Router</p>
+                        <p>Proficient in React, with experience building reusable UI components and managing state changes.</p>
                     </div>
                     <div class="card">
                         <i class="fa fa-python"></i>
                         <h3>Python</h3>
-                        <p>Basic knowledge of Python, including data structures, algorithms, and web development frameworks like Django and Flask</p>
+                        <p>Knowledge of Python, including data structures, object-oriented programming, and web development frameworks like Django.</p>
                     </div>
                     <div class="card">
                         <i class="fa fa-database"></i>
                         <h3>SQL</h3>
-                        <p>Basic knowledge of SQL, including database design, querying, and data modeling</p>
+                        <p>Familiarity with SQL, including database design, querying, and data modeling.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Experience Section -->
+        <div id="experience" class="main-content">
+            <div class="experience-container">
+                <h2>Experience</h2>
+                <div class="cards experience-details">
+                    <div class="card">
+                        <h3>Junior Front-end Developer, CodeCavers</h3>
+                        <p>May 2024 - Current</p>
+                        <p>Developed responsive and visually appealing web applications using React, HTML, CSS, and JavaScript.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Software Engineer, Moringa School</h3>
+                        <p>May 2023 - Nov 2023</p>
+                        <p>Worked on real-world projects, applying knowledge to solve practical problems and deliver functional solutions.</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Projects Section -->
-        <div id="Projects" class="main-content">
+        <div id="projects" class="main-content">
             <div class="projects-container">
                 <h2>Projects</h2>
-                <div class="cards projects-cards">
+                <div class="cards projects-details">
                     <div class="card">
-                        <img src="images/project1.jpg" alt="Project 1">
-                        <h3>Project 1</h3>
-                        <p>Project description</p>
+                        <h3>Project 1: Personal Website</h3>
+                        <p>Designed and developed a personal website using HTML, CSS, and JavaScript to showcase my skills and experience.</p>
+                        <p>Technologies used: HTML, CSS, JavaScript, React</p>
+                        <p><a href="https://collinskipkorir.netlify.app/" target="_blank">View Live</a></p>
+                        <p><a href="https://github.com/kipkorir73/personal-website" target="_blank">View Code</a></p>
+                        <img src="images/project1.png" alt="Project 1">
                     </div>
                     <div class="card">
-                        <img src="images/project2.jpg" alt="Project 2">
-                        <h3>Project 2</h3>
-                        <p>Project description</p>
+                        <h3>Project 2: To-Do List App</h3>
+                        <p>Developed a To-Do List App using React, Redux, and CSS-in-JS, featuring user authentication and data persistence.</p>
+                        <p>Technologies used: React, Redux, CSS-in-JS, Firebase</p>
+                        <p><a href="https://todo-list-app.netlify.app/" target="_blank">View Live</a></p>
+                        <p><a href="https://github.com/kipkorir73/todo-list-app" target="_blank">View Code</a></p>
+                        <img src="images/project2.png" alt="Project 2">
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Education Section -->
+        <div id="education" class="main-content">
+            <div class="education-container">
+                <h2>Education</h2>
+                <div class="cards education-details">
                     <div class="card">
-                        <img src="images/project3.jpg" alt="Project 3">
-                        <h3>Project 3</h3>
-                        <p>Project description</p>
+                        <h3>Bachelor of Technology in Electronics and Computer Engineering</h3>
+                        <p>Kirinyaga University</p>
+                        <p>2020 - 2024</p>
+                    </div>
+                    <div class="card ">
+                        <h3>Software Engineering Bootcamp</h3>
+                        <p>Moringa School</p>
+                        <p>May 2023 - Nov 2023</p>
                     </div>
                 </div>
             </div>
@@ -133,18 +174,31 @@
         <div id="contact" class="main-content">
             <div class="contact-container">
                 <h2>Contact</h2>
-                <div class="contact-info">
-                    <p>Phone: +254111998133</p>
-                    <p>Email: <a href="mailto:kipkorirc583@gmail.com">kipkorirc583@gmail.com</a></p>
-                    <p>Website: <a href="https://collinskipkorir.netlify.app/">https://collinskipkorir.netlify.app/</a></p>
+                <div class="cards contact-details">
+                    <div class="card">
+                        <i class="fa fa-phone"></i>
+                        <h3>Phone</h3>
+                        <p>+254111998133</p>
+                    </div>
+                    <div class="card">
+                        <i class="fa fa-envelope"></i>
+                        <h3>Email</h3>
+                        <p>kipkorirc583@gmail.com</p>
+                    </div>
+                    <div class="card">
+                        <i class="fa fa-link"></i>
+                        <h3>Website</h3>
+                        <p>https://collinskipkorir.netlify.app/</p>
+                    </div>
                 </div>
-                <div class="contact-form">
-                    <form>
-                        <input type="text" placeholder="Name">
-                        <input type="email" placeholder="Email">
-                        <textarea placeholder="Message"></textarea>
-                        <button type="submit">Send</button>
-                    </form>
+                <form id="contact-form">
+                    <input type="text" id="name" placeholder="Name">
+                    <input type="email" id="email" placeholder="Email">
+                    <textarea id="message" placeholder="Message"></textarea>
+                    <button id="submit">Send Message</button>
+                </form>
+                <div id="success-message">
+                    <p>Thank you for reaching out! I'll get back to you soon.</p>
                 </div>
             </div>
         </div>
