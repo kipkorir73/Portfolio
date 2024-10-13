@@ -239,7 +239,7 @@ img {
 }
 
 .project-card img {
-    border-radius: 10px;
+ border-radius: 10px;
 }
 
 .project-buttons {
@@ -258,123 +258,6 @@ img {
 .project-buttons .btn:hover {
     background: #ffd700;
     color: #333;
-}
-
-/* Contact Section */
-.contact-container {
-    padding: 40px 20px;
-    text-align: center;
-}
-
-.contact-card {
-    background: #f4f4f4;
-    padding: 20px;
-    border-radius: 10px;
-    max-width: 500px;
-    margin: 0 auto;
-}
-
-.contact-card h2 {
-    margin-bottom: 20px;
-}
-
-.contact-info {
-    margin-top: 20px;
-}
-
-.contact-info .social-icons a {
-    margin: 0 10px;
-    color: #333;
-    font-size: 1.5rem;
-}
-
-.contact-info .social-icons a:hover {
-    color: #ffd700;
-}
-
-.contact-info form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.contact-info input, .contact-info textarea {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    width: 100%;
-}
-
-.contact-info button {
-    background: #333;
-    color: white;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-}
-
-.contact-info button:hover {
-    background: #ffd700;
-    color: #333;
-}
-
-/* Footer */
-footer {
-    background: #333;
-    color: white;
-    text-align: center;
-    padding: 20px 0;
-}
-
-/* Media Queries */
-@media (max-width: 768px) {
-    .navbar {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .menu {
-        display: none;
-        flex-direction: column;
-        gap: 10px;
-        width: 100%;
-    }
-
-    .menu.open {
-        display: flex;
-    }
-
-    .home-section {
-        flex-direction: column;
-        align-items: center;
-        padding: 20px;
-    }
-
-    .home-text h1 {
-        font-size: 2rem;
-    }
-
-    .home-text h2 {
-        font-size: 1.2rem;
-    }
-
-    .home-text .buttons {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .home-text .btn {
-        margin: 5px 0;
-    }
-
-    .about-details .card, .skills-details .card {
-        width: 100%;
-    }
-
-    .project-card {
-        width: 100%;
-    }
 }
 
 /* Contact Section */
@@ -460,4 +343,62 @@ footer {
 .contact-info button:hover {
     background: #ffd700;
     color: #333;
+}
+
+/* Footer */
+footer {
+    background: #333;
+    color: white;
+    text-align: center;
+    padding: 20px 0;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .menu {
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .menu.open {
+        display: flex;
+    }
+
+    .home-section {
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .home-text h1 {
+        font-size: 2rem;
+    }
+
+    .home-text h2 {
+        font-size: 1.2rem;
+    }
+
+    .home-text .buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .home-text .btn {
+        margin: 5px 0;
+    }
+
+    .about-details .card, .skills-details .card {
+        width: 100%;
+    }
+
+    .project-card {
+        width: 100%;
+    }
 }
