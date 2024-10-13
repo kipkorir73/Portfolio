@@ -1,16 +1,45 @@
-const form = document.getElementById('contact-form');
-const successMessage = document.getElementById('success-message');
+document.addEventListener('DOMContentLoaded', function () {
+    const menuToggle = document.querySelector('.menu-toggle');
+    const menu = document.querySelector('.menu');
+    const contactForm = document.getElementById('contact-form');
+    const successMessage = document.getElementById('success-message');
+    const errorMessage = document.getElementById('error-message');
 
-form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-    const message = document.getElementById('message').value;
+    menuToggle.addEventListener('click', function () {
+        menu.classList.toggle('open');
+        this.setAttribute('aria-expanded', menu.classList.contains('open'));
 
-    // Send message logic here
+        // Close the menu after 2.5 seconds of inactivity
+        let timer;
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            menu.classList.remove('open');
+            menuToggle.setAttribute('aria-expanded', 'false');
+        }, 2500);
+    });
 
-    successMessage.classList.add('show');
-    setTimeout(() => {
-        successMessage.classList.remove('show');
-    }, 3000);
+    contactForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(contactForm);
+
+        fetch(contactForm.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Accept': 'application/json'
+            }
+        }).then(response => {
+            if (response.ok) {
+                successMessage.style.display = 'block';
+                errorMessage.style.display = 'none';
+                contactForm.reset(); // Clear the form fields
+            } else {
+                throw new Error('Network response was not ok.');
+            }
+        }).catch(error => {
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'block';
+        });
+    });
 });
