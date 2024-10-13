@@ -1,45 +1,27 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const menuToggle = document.querySelector('.menu-toggle');
-    const menu = document.querySelector('.menu');
-    const contactForm = document.getElementById('contact-form');
-    const successMessage = document.getElementById('success-message');
-    const errorMessage = document.getElementById('error-message');
+/* Animation styles */
+.main-content {
+    opacity: 0; /* Start hidden */
+    transform: translateY(50px); /* Slide in from below */
+    transition: opacity 0.6s ease, transform 0.6s ease; /* Smooth transition */
+}
 
-    menuToggle.addEventListener('click', function () {
-        menu.classList.toggle('open');
-        this.setAttribute('aria-expanded', menu.classList.contains('open'));
+.main-content.animate {
+    opacity: 1; /* Fully visible */
+    transform: translateY(0); /* Original position */
+}
 
-        // Close the menu after 2.5 seconds of inactivity
-        let timer;
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-            menu.classList.remove('open');
-            menuToggle.setAttribute('aria-expanded', 'false');
-        }, 2500);
-    });
+/* Responsive styles for smaller devices */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column; /* Stack items in navbar */
+    }
 
-    contactForm.addEventListener('submit', function (e) {
-        e.preventDefault();
+    .profile-pic img {
+        width: 80%; /* Make profile image smaller */
+    }
 
-        const formData = new FormData(contactForm);
+    .project-card img {
+        width: 100%; /* Full width for project images */
+    }
+}
 
-        fetch(contactForm.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'Accept': 'application/json'
-            }
-        }).then(response => {
-            if (response.ok) {
-                successMessage.style.display = 'block';
-                errorMessage.style.display = 'none';
-                contactForm.reset(); // Clear the form fields
-            } else {
-                throw new Error('Network response was not ok.');
-            }
-        }).catch(error => {
-            successMessage.style.display = 'none';
-            errorMessage.style.display = 'block';
-        });
-    });
-});
