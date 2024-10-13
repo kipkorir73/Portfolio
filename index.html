@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,27 +7,26 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-HHRgFB+xMbj5s0vXyL3gLl2dCkSjKte+iB+NZ1aHfWGMMI+USWD4tIEU1VNxNxqFEG4tG4lH4DDfjCjzv0ez9w==" crossorigin="anonymous" />
     <link rel="stylesheet" href="main.css">
-    <title>Collins Kipkorir Portfolio</title>
+    <title>Collins Portfolio</title>
 </head>
-
 <body>
     <header id="header">
         <div class="container">
             <nav class="navbar">
                 <img src="images/Collins._1_-removebg-preview.png" class="logo" alt="Logo">
-                <button class="menu-toggle" aria-expanded="false" aria-controls="menu" onclick="toggleMenu()">☰</button>
+                <button class="menu-toggle" aria-expanded="false" aria-controls="menu">☰</button>
                 <ul class="menu" id="menu">
                     <li><a href="#home">Home</a></li>
                     <li><a href="#about">About</a></li>
                     <li><a href="#skills">Skills</a></li>
                     <li><a href="#Projects">Projects</a></li>
                     <li><a href="#testimonials">Testimonials</a></li>
+                    <li><a href="#experience">Experience</a></li>
                     <li><a href="#contact">Contact</a></li>
                 </ul>
             </nav>
         </div>
     </header>
-
     <main>
         <!-- Home Section -->
         <div id="home" class="main-content home-section">
@@ -120,7 +118,7 @@
 
         <!-- Projects Section -->
         <div id="Projects" class="main-content">
-            <h2 class="projects-title">Projects</h2>
+            <h2 class="projects-title">PROJECTS</h2>
             <div class="project-container">
                 <div class="project-card">
                     <img src="images/Screenshot from 2024-06-01 01-51-32.png" alt="Project 1">
@@ -149,40 +147,56 @@
         <!-- Testimonials Section -->
         <section id="testimonials" class="testimonials-container">
             <h2>Testimonials</h2>
-            <div class="testimonial-card">
-                <img src="images/nicholas_mwangi.jpg" alt="Nicholas Mwangi" class="testimonial-image">
-                <p>"Working with Collins on the Underground Cable Fault Detection Project was a fantastic experience. His dedication and skills were evident in every step!"</p>
-                <h4>- Nicholas Mwangi</h4>
+            <div class="testimonial-cards">
+                <div class="testimonial-card">
+                    <img src="images/testimonial1.jpg" alt="Nicholas Mwangi" class="testimonial-image">
+                    <p>"Working with Collins on the Underground Cable Fault Detection Project was a fantastic experience. His skills and dedication were invaluable!"</p>
+                    <p class="testimonial-author">- Nicholas Mwangi</p>
+                </div>
+                <div class="testimonial-card">
+                    <img src="images/testimonial2.jpg" alt="Nicholas Kipkemoi" class="testimonial-image">
+                    <p>"Collins consistently brings innovative ideas to the table. He’s a great team player!"</p>
+                    <p class="testimonial-author">- Nicholas Kipkemoi</p>
+                </div>
             </div>
-            <div class="testimonial-card">
-                <img src="images/ben_mwangi.jpg" alt="Ben Mwangi" class="testimonial-image">
-                <p>"Collins's ability to bring concepts to life in the frontend development realm is impressive. He has a bright future ahead!"</p>
-                <h4>- Ben Mwangi</h4>
+        </section>
+
+        <!-- Experience Section -->
+        <section id="experience" class="experience-container">
+            <h2 class="experience-title">Experience</h2>
+            <div class="experience-card">
+                <h3>Intern at Webacy</h3>
+                <p><strong>Duration:</strong> October 2023 - April 2024</p>
+                <p><strong>Responsibilities:</strong> Worked on projects involving blockchain technology and contributed to team discussions.</p>
+            </div>
+            <div class="experience-card">
+                <h3>Extern at Codecavers</h3>
+                <p><strong>Duration:</strong> May - June 2024</p>
+                <p><strong>Responsibilities:</strong> Assisted in developing web applications and participated in code reviews.</p>
+            </div>
+            <div class="experience-card">
+                <h3>Industrial Attachment at Relentless Connections</h3>
+                <p><strong>Duration:</strong> January - April 2024</p>
+                <p><strong>Responsibilities:</strong> Engaged in projects focused on embedded systems and automation.</p>
             </div>
         </section>
 
         <!-- Contact Section -->
         <div id="contact" class="main-content">
             <h2>Contact Me</h2>
-            <div class="contact-form">
-                <form action="mailto:kipkorir73@gmail.com" method="post" enctype="text/plain">
-                    <label for="name">Name:</label>
-                    <input type="text" id="name" name="name" required>
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required>
-                    <label for="message">Message:</label>
-                    <textarea id="message" name="message" required></textarea>
-                    <button type="submit" class="btn submit">Send Message</button>
-                </form>
-            </div>
+            <form id="contact-form" class="contact-form">
+                <input type="text" name="name" placeholder="Your Name" required>
+                <input type="email" name="email" placeholder="Your Email" required>
+                <textarea name="message" placeholder="Your Message" required></textarea>
+                <button type="submit" class="btn submit">Send</button>
+                <p class="form-message"></p>
+            </form>
         </div>
-
-        <footer>
-            <p>&copy; 2024 Collins Kipkorir. All rights reserved.</p>
-        </footer>
     </main>
-<script src="script.js"></script>
-
+    <footer>
+        <p>&copy; 2024 Collins Kipkorir. All rights reserved.</p>
+    </footer>
+    <script src="script.js"></script>
 </body>
-
 </html>
+
