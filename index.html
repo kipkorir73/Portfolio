@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-HHRgFB+xMbj5s0vXyL3gLl2dCkSjKte+iB+NZ1aHfWGMMI+USWD4tIEU1VNxNxqFEG4tG4lH4DDfjCjzv0ez9w==" crossorigin="anonymous" />
+
     <link rel="stylesheet" href="main.css">
     <title>Collins Portfolio</title>
 </head>
@@ -20,8 +21,6 @@
                     <li><a href="#about">About</a></li>
                     <li><a href="#skills">Skills</a></li>
                     <li><a href="#Projects">Projects</a></li>
-                    <li><a href="#testimonials">Testimonials</a></li>
-                    <li><a href="#experience">Experience</a></li>
                     <li><a href="#contact">Contact</a></li>
                 </ul>
             </nav>
@@ -61,9 +60,6 @@
                         <i class="fa fa-briefcase"></i>
                         <h3>Experience</h3>
                         <p>1 year of front-end development experience</p>
-                        <p>Underground Cable Fault Detection System (Kirinyaga University) – Oct 2023 to April 2024</p>
-                        <p>Codecavers (Remote) Intern – May to June 2024</p>
-                        <p>Webacy (Remote) Extern (Web3) – August to September 2024</p>
                     </div>
                 </div>
                 <div class="description about-description">
@@ -80,6 +76,7 @@
         <div id="skills" class="main-content">
             <div class="skills-container">
                 <div class="cards skills-details">
+                    <!-- Frontend Skills -->
                     <div class="card">
                         <i class="fa fa-laptop-code"></i>
                         <h3>Frontend</h3>
@@ -90,6 +87,7 @@
                             <li><i class="fa fa-check"></i> JavaScript</li>
                         </ul>
                     </div>
+                    <!-- Backend Skills -->
                     <div class="card">
                         <i class="fa fa-server"></i>
                         <h3>Backend</h3>
@@ -101,6 +99,7 @@
                             <li><i class="fa fa-check"></i> C++</li>
                         </ul>
                     </div>
+                    <!-- Additional Skills -->
                     <div class="card">
                         <i class="fa fa-book"></i>
                         <h3>Additional Skills</h3>
@@ -120,6 +119,7 @@
         <div id="Projects" class="main-content">
             <h2 class="projects-title">PROJECTS</h2>
             <div class="project-container">
+                <!-- Project 1 -->
                 <div class="project-card">
                     <img src="images/Screenshot from 2024-06-01 01-51-32.png" alt="Project 1">
                     <div class="project-buttons">
@@ -127,6 +127,7 @@
                         <a href="https://bamac-school-management-system.netlify.app/" class="btn live-demo">Demo</a>
                     </div>
                 </div>
+                <!-- Project 2 -->
                 <div class="project-card">
                     <img src="images/Screenshot from 2024-06-01 02-03-28.png" alt="Project 2">
                     <div class="project-buttons">
@@ -134,6 +135,7 @@
                         <a href="https://patanafuu.netlify.app/" class="btn live-demo">Demo</a>
                     </div>
                 </div>
+                <!-- Project 3 -->
                 <div class="project-card">
                     <img src="images/Screenshot from 2024-06-01 02-21-43.png" alt="Project 3">
                     <div class="project-buttons">
@@ -144,59 +146,39 @@
             </div>
         </div>
 
-        <!-- Testimonials Section -->
-        <section id="testimonials" class="testimonials-container">
-            <h2>Testimonials</h2>
-            <div class="testimonial-cards">
-                <div class="testimonial-card">
-                    <img src="images/testimonial1.jpg" alt="Nicholas Mwangi" class="testimonial-image">
-                    <p>"Working with Collins on the Underground Cable Fault Detection Project was a fantastic experience. His skills and dedication were invaluable!"</p>
-                    <p class="testimonial-author">- Nicholas Mwangi</p>
-                </div>
-                <div class="testimonial-card">
-                    <img src="images/testimonial2.jpg" alt="Nicholas Kipkemoi" class="testimonial-image">
-                    <p>"Collins consistently brings innovative ideas to the table. He’s a great team player!"</p>
-                    <p class="testimonial-author">- Nicholas Kipkemoi</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Experience Section -->
-        <section id="experience" class="experience-container">
-            <h2 class="experience-title">Experience</h2>
-            <div class="experience-card">
-                <h3>Intern at Webacy</h3>
-                <p><strong>Duration:</strong> October 2023 - April 2024</p>
-                <p><strong>Responsibilities:</strong> Worked on projects involving blockchain technology and contributed to team discussions.</p>
-            </div>
-            <div class="experience-card">
-                <h3>Extern at Codecavers</h3>
-                <p><strong>Duration:</strong> May - June 2024</p>
-                <p><strong>Responsibilities:</strong> Assisted in developing web applications and participated in code reviews.</p>
-            </div>
-            <div class="experience-card">
-                <h3>Industrial Attachment at Relentless Connections</h3>
-                <p><strong>Duration:</strong> January - April 2024</p>
-                <p><strong>Responsibilities:</strong> Engaged in projects focused on embedded systems and automation.</p>
-            </div>
-        </section>
-
         <!-- Contact Section -->
-        <div id="contact" class="main-content">
-            <h2>Contact Me</h2>
-            <form id="contact-form" class="contact-form">
-                <input type="text" name="name" placeholder="Your Name" required>
-                <input type="email" name="email" placeholder="Your Email" required>
-                <textarea name="message" placeholder="Your Message" required></textarea>
-                <button type="submit" class="btn submit">Send</button>
-                <p class="form-message"></p>
-            </form>
+        <!-- Contact Section -->
+<section id="contact">
+    <div class="contact-container">
+        <div class="contact-card">
+            <h2>Get in Touch</h2>
+            <div class="contact-info">
+                <div class="social-icons">
+                    <a href="https://github.com/kipkorir73"><i class="fa fa-github"></i></a>
+                    <a href="https://www.linkedin.com/in/collins-kipkorir-10b725223/"><i class="fa fa-linkedin"></i></a>
+                    <a href="tel:+254111998133"><i class="fa fa-phone"></i></a>
+                    <a href="mailto:kipkorirc583@gmail.com"><i class="fa fa-envelope"></i></a>
+                </div>
+                <div class="messages">
+                    <p class="success-message" id="success-message">Message sent successfully. Please wait for our response via email.</p>
+                    <p class="error-message" id="error-message">There was an error sending your message. Please try again.</p>
+                </div>
+                <form id="contact-form">
+                    <input type="text" name="name" placeholder="Your Name" required>
+                    <input type="email" name="email" placeholder="Your Email" required>
+                    <textarea name="message" placeholder="Your Message" required></textarea>
+                    <button type="submit" class="btn send">Send Message</button>
+                </form>
+            </div>
         </div>
+    </div>
+</section>
+
     </main>
     <footer>
         <p>&copy; 2024 Collins Kipkorir. All rights reserved.</p>
     </footer>
     <script src="script.js"></script>
+
 </body>
 </html>
-
