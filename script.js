@@ -1,48 +1,45 @@
-// Function to animate testimonials
-const animateTestimonials = () => {
-    const testimonialCards = document.querySelectorAll('.testimonial-card');
-    const windowHeight = window.innerHeight;
+document.addEventListener('DOMContentLoaded', function () {
+    const menuToggle = document.querySelector('.menu-toggle');
+    const menu = document.querySelector('.menu');
+    const contactForm = document.getElementById('contact-form');
+    const successMessage = document.getElementById('success-message');
+    const errorMessage = document.getElementById('error-message');
 
-    testimonialCards.forEach((card) => {
-        const rect = card.getBoundingClientRect();
-        if (rect.top < windowHeight - 50) {
-            card.style.opacity = '1'; // Fade in
-            card.style.transform = 'translateY(0)'; // Move to original position
-        }
+    menuToggle.addEventListener('click', function () {
+        menu.classList.toggle('open');
+        this.setAttribute('aria-expanded', menu.classList.contains('open'));
+
+        // Close the menu after 2.5 seconds of inactivity
+        let timer;
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            menu.classList.remove('open');
+            menuToggle.setAttribute('aria-expanded', 'false');
+        }, 2500);
     });
-};
 
-// Function to animate experience section
-const animateExperience = () => {
-    const experienceCards = document.querySelectorAll('.experience-card');
-    const windowHeight = window.innerHeight;
+    contactForm.addEventListener('submit', function (e) {
+        e.preventDefault();
 
-    experienceCards.forEach((card) => {
-        const rect = card.getBoundingClientRect();
-        if (rect.top < windowHeight - 50) {
-            card.style.opacity = '1'; // Fade in
-            card.style.transform = 'translateY(0)'; // Move to original position
-        }
+        const formData = new FormData(contactForm);
+
+        fetch(contactForm.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Accept': 'application/json'
+            }
+        }).then(response => {
+            if (response.ok) {
+                successMessage.style.display = 'block';
+                errorMessage.style.display = 'none';
+                contactForm.reset(); // Clear the form fields
+            } else {
+                throw new Error('Network response was not ok.');
+            }
+        }).catch(error => {
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'block';
+        });
     });
-};
-
-// Submit contact form
-const contactForm = document.getElementById('contact-form');
-contactForm.addEventListener('submit', (event) => {
-    event.preventDefault(); // Prevent default form submission
-    const formMessage = document.querySelector('.form-message');
-    formMessage.innerText = "Thank you for your message! I'll get back to you soon.";
-    contactForm.reset(); // Reset the form
-});
-
-// Add scroll event listener for animations
-window.addEventListener('scroll', () => {
-    animateTestimonials();
-    animateExperience();
-});
-
-// Initial animation on page load
-window.addEventListener('load', () => {
-    animateTestimonials();
-    animateExperience();
 });
