@@ -19,27 +19,27 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     contactForm.addEventListener('submit', function (e) {
-        e.preventDefault();
+    e.preventDefault();
 
-        const formData = new FormData(contactForm);
+    const formData = new FormData(contactForm);
 
-        fetch(contactForm.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'Accept': 'application/json'
-            }
-        }).then(response => {
-            if (response.ok) {
-                successMessage.style.display = 'block';
-                errorMessage.style.display = 'none';
-                contactForm.reset(); // Clear the form fields
-            } else {
-                throw new Error('Network response was not ok.');
-            }
-        }).catch(error => {
-            successMessage.style.display = 'none';
-            errorMessage.style.display = 'block';
-        });
+    fetch(contactForm.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'Accept': 'application/json'
+        }
+    }).then(response => {
+        if (response.ok) {
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+            successMessage.innerText = "Thanks for your message! I'll reply faster than your WiFi can load the next meme! 😄";
+            contactForm.reset();
+        } else {
+            throw new Error('Network response was not ok.');
+        }
+    }).catch(error => {
+        successMessage.style.display = 'none';
+        errorMessage.style.display = 'block';
     });
 });
