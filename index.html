@@ -1,50 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-HHRgFB+xMbj5s0vXyL3gLl2dCkSjKte+iB+NZ1aHfWGMMI+USWD4tIEU1VNxNxqFEG4tG4lH4DDfjCjzv0ez9w==" crossorigin="anonymous" />
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="main.css">
+        <title>Collins Portfolio</title>
+    </head>
+    <body>
+        <!-- Navbar for Laptops and Larger Screens -->
+        <nav class="navbar">
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#Projects">Projects</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    
+        <!-- Sidebar for Phones -->
+        <div class="sidebar" id="sidebar">
+            <button class="close-btn" onclick="toggleSidebar()">✖</button>
+            <img src="images/Collins._1_-removebg-preview.png" class="logo" alt="Logo">
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#Projects">Projects</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+        <button class="open-btn" onclick="toggleSidebar()">☰</button>
+    
 
-    <link rel="stylesheet" href="main.css">
-    <title>Collins Portfolio</title>
-</head>
-<body>
-    <header id="header">
-        <div class="container">
-            <nav class="navbar">
-                <img src="images/Collins._1_-removebg-preview.png" class="logo" alt="Logo">
-                <button class="menu-toggle" aria-expanded="false" aria-controls="menu">☰</button>
-                <ul class="menu" id="menu">
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#skills">Skills</a></li>
-                    <li><a href="#Projects">Projects</a></li>
-                    <li><a href="#contact">Contact</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
     <main>
-        <!-- Home Section -->
-        <div id="home" class="main-content home-section">
-            <div class="profile-pic">
-                <img src="images/Collins.profile" alt="Your Picture">
+       <!-- Home Section -->
+<div id="home" class="main-content home-section">
+    <div class="profile-container">
+        <div class="profile-pic">
+            <img src="images/Collins.profile" alt="Collins Kipkorir">
+        </div>
+        <div class="home-text">
+            <h1>Hello, I'm <br> <span class="name">Collins Kipkorir</span></h1>
+            <h2>Front-end Developer</h2>
+            <div class="buttons">
+                <a href="images/New Uploaded Resume-1.pdf" class="btn download" download>Download CV</a>
+                <a href="#contact" class="btn contact">Contact Info</a>
             </div>
-            <div class="home-text">
-                <h1>Hello, I'm <br> <span class="name">Collins Kipkorir</span></h1>
-                <h2>Front-end Developer</h2>
-                <div class="buttons">
-                    <a href="images/New Uploaded Resume-1.pdf" class="btn download" download>Download CV</a>
-                    <a href="#contact" class="btn contact">Contact Info</a>
-                </div>
-                <div class="social-icons">
-                    <a href="https://github.com/kipkorir73" target="_blank"><i class="fa fa-github"></i></a>
-                    <a href="https://www.linkedin.com/in/collins-kipkorir-10b725223/" target="_blank"><i class="fa fa-linkedin"></i></a>
-                </div>
+            <div class="social-icons">
+                <a href="https://github.com/kipkorir73" target="_blank" class="social-icon"><i class="fa fa-github"></i></a>
+                <a href="https://www.linkedin.com/in/collins-kipkorir-10b725223/" target="_blank" class="social-icon"><i class="fa fa-linkedin"></i></a>
             </div>
         </div>
+    </div>
+</div>
 
         <!-- About Me Section -->
         <div id="about" class="main-content">
@@ -64,10 +75,16 @@
                 </div>
                 <div class="description about-description">
                     <h2>About Me</h2>
-                    <p>Hello, I'm <span class="name">Collins Kipkorir</span>, a passionate front-end developer based in Kenya. I specialize in creating responsive and engaging web interfaces using the latest technologies.</p>
-                    <p>I hold a degree in Electronics and Computer Engineering from Kirinyaga University and have a strong foundation in software development. Additionally, I completed a software engineering boot camp focused on front-end development, further honing my skills in this area.</p>
-                    <p>I have expertise in technologies such as React, HTML, CSS, and Tailwind CSS, allowing me to bring designs to life with clean and efficient code.</p>
-                    <p>Feel free to connect with me on GitHub or LinkedIn to learn more about my work and experiences. I'm always excited to collaborate on innovative projects and contribute to meaningful initiatives!</p>
+                    <p>Hello! I'm <span class="name">Collins Kipkorir</span>, a passionate front-end developer from Kenya with a knack for turning ideas into stunning, user-friendly websites. My journey into tech began with a fascination for how things work under the hood, and over time, it evolved into a deep love for creating digital experiences that make an impact.</p>
+
+<p>With a degree in Electronics and Computer Engineering from <strong>Kirinyaga University</strong>, and hands-on training from <strong>Moringa School's Software Engineering Bootcamp</strong>, I've developed a solid foundation in both hardware and software. But it's my journey into front-end development that truly excites me—transforming concepts into real, interactive designs using the latest web technologies.</p>
+
+<p>What I find most thrilling about front-end development is the perfect blend of creativity and problem-solving. Whether I'm working with <strong>React</strong>, <strong>HTML</strong>, <strong>CSS</strong>, or <strong>Tailwind CSS</strong>, I love crafting responsive, beautiful websites that not only look great but work seamlessly across devices. I strive to stay ahead of trends, constantly learning and experimenting with new tools to build cleaner, faster, and more engaging user interfaces.</p>
+
+<p>But it's not just about the code—it's about the people and the projects. I believe in collaboration and the power of a great team to build something truly unique. Outside of coding, I’m an avid learner, always exploring new areas of tech, and I'm eager to work with like-minded individuals on innovative and meaningful projects.</p>
+
+<p>If you're interested in collaborating or just want to chat about the latest in tech, feel free to reach out to me on <a href="https://github.com/kipkorir73" target="_blank"><strong>GitHub</strong></a> or <a href="https://www.linkedin.com/in/collins-kipkorir-10b725223/" target="_blank"><strong>LinkedIn</strong></a>. Let's create something amazing together!</p>
+
                 </div>
             </div>
         </div>
@@ -145,48 +162,47 @@
                 </div>
             </div>
         </div>
-
-        <!-- Contact Section -->
-        <!-- Contact Section -->
-<section id="contact">
-    <div class="contact-container">
-        <div class="contact-card">
-            <h2>Get in Touch</h2>
-            <div class="contact-info">
-                <div class="social-icons">
-                    <a href="https://github.com/kipkorir73"><i class="fa fa-github"></i></a>
-                    <a href="https://www.linkedin.com/in/collins-kipkorir-10b725223/"><i class="fa fa-linkedin"></i></a>
-                    <a href="tel:+254111998133"><i class="fa fa-phone"></i></a>
-                    <a href="mailto:kipkorirc583@gmail.com"><i class="fa fa-envelope"></i></a>
-                </div>
-                <div class="messages">
-                    <p class="success-message" id="success-message">Message sent successfully. Please wait for our response via email.</p>
-                    <p class="error-message" id="error-message">There was an error sending your message. Please try again.</p>
-                </div>
-                <form id="contact-form">
-                    <input type="text" name="name" placeholder="Your Name" required>
-                    <input type="email" name="email" placeholder="Your Email" required>
-                    <textarea name="message" placeholder="Your Message" required></textarea>
-                    <button type="submit" class="btn send">Send Message</button>
-                </form>
-            </div>
+    </section>
+    <section id="testimonials" class="testimonials-container">
+        <h2>Testimonials</h2>
+        <div class="testimonial-card">
+            <img src="images/gaucho-1.png" alt="Nicholas Mwangi" class="testimonial-image">
+            <p>"Working with Collins was fantastic. His problem-solving skills are unmatched!"</p>
+            <h4>- Nicholas Mwangi</h4>
         </div>
-    </div>
-</section>
-<section id="testimonials" class="testimonials-container">
-    <h2>Testimonials</h2>
-    <div class="testimonial-card">
-        <img src="images/testimonial1.jpg" alt="Nicholas Mwangi" class="testimonial-image">
-        <p>"Working with Collins was fantastic. His problem-solving skills are unmatched!"</p>
-        <h4>- Nicholas Mwangi</h4>
-    </div>
-    <div class="testimonial-card">
-        <img src="images/testimonial2.jpg" alt="Nicholas Kipkemoi" class="testimonial-image">
-        <p>"Collins consistently brought innovative ideas and improved our projects." </p>
-        <h4>- Nicholas Kipkemoi</h4>
-    </div>
-</section>
-
+        <div class="testimonial-card">
+            <img src="images/imresizer-1731007141375.jpg" alt="Nicholas Kipkemoi" class="testimonial-image">
+            <p>"Collins consistently brought innovative ideas and improved our projects." </p>
+            <h4>- Nicholas Kipkemoi</h4>
+        </div>
+    </section>
+        <!-- Contact Section -->
+        <section id="contact">
+            <div class="contact-container">
+                <div class="contact-card">
+                    <h2>Let's Connect</h2>
+                    <p>Have any questions, suggestions, or just want to say hello? Feel free to reach out!</p>
+                    <div class="contact-info">
+                        <div class="social-icons">
+                            <a href="https://github.com/kipkorir73" target="_blank"><i class="fa fa-github"></i> GitHub</a>
+                            <a href="https://www.linkedin.com/in/collins-kipkorir-10b725223/" target="_blank"><i class="fa fa-linkedin"></i> LinkedIn</a>
+                            <a href="tel:+254111998133"><i class="fa fa-phone"></i> Call Me</a>
+                            <a href="mailto:kipkorirc583@gmail.com"><i class="fa fa-envelope"></i> Email Me</a>
+                        </div>
+                        <div class="messages">
+                            <p class="success-message" id="success-message">Your message has been sent successfully! I'll get back to you via email soon.</p>
+                            <p class="error-message" id="error-message">Oops! Something went wrong while sending your message. Please try again later.</p>
+                        </div>
+                        <form id="contact-form">
+                            <input type="text" name="name" placeholder="Your Name" required>
+                            <input type="email" name="email" placeholder="Your Email" required>
+                            <textarea name="message" placeholder="Your Message" required></textarea>
+                            <button type="submit" class="btn send">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
     <footer>
         <p>&copy; 2024 Collins Kipkorir. All rights reserved.</p>

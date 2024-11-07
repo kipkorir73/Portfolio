@@ -1,45 +1,92 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const menuToggle = document.querySelector('.menu-toggle');
-    const menu = document.querySelector('.menu');
-    const contactForm = document.getElementById('contact-form');
-    const successMessage = document.getElementById('success-message');
-    const errorMessage = document.getElementById('error-message');
+// Function to toggle the sidebar visibility
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar'); // Get the sidebar element
+    const navbar = document.querySelector('.navbar'); // Get the navbar element
 
-    menuToggle.addEventListener('click', function () {
-        menu.classList.toggle('open');
-        this.setAttribute('aria-expanded', menu.classList.contains('open'));
+    // Toggle the "open" class on the sidebar
+    sidebar.classList.toggle('open');
 
-        // Close the menu after 2.5 seconds of inactivity
-        let timer;
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-            menu.classList.remove('open');
-            menuToggle.setAttribute('aria-expanded', 'false');
-        }, 2500);
-    });
+    // If the sidebar is open, hide the navbar for smaller screens
+    if (sidebar.classList.contains('open')) {
+        navbar.style.display = 'none'; // Hide the navbar when sidebar is open
+    } else {
+        // When sidebar is closed, check screen size
+        checkScreenSize(); // Run checkScreenSize function to handle navbar visibility
+    }
+}
 
-    contactForm.addEventListener('submit', function (e) {
-    e.preventDefault();
+// Function to ensure the navbar stays visible on larger screens
+function checkScreenSize() {
+    const sidebar = document.getElementById('sidebar');
+    const navbar = document.querySelector('.navbar');
 
-    const formData = new FormData(contactForm);
+    // Check if the screen width is above a certain threshold (desktop size)
+    if (window.innerWidth > 768) {
+        // Ensure the sidebar is closed and the navbar is visible
+        sidebar.classList.remove('open');
+        navbar.style.display = 'flex'; // Display navbar for larger screens
+    } else {
+        // If screen size is small, hide the navbar and allow sidebar toggling
+        navbar.style.display = 'none'; // Keep navbar hidden for small screens
+    }
+}
 
-    fetch(contactForm.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'Accept': 'application/json'
-        }
-    }).then(response => {
-        if (response.ok) {
-            successMessage.style.display = 'block';
-            errorMessage.style.display = 'none';
-            successMessage.innerText = "Thanks for your message! I'll reply faster than your WiFi can load the next meme! 😄";
-            contactForm.reset();
-        } else {
-            throw new Error('Network response was not ok.');
-        }
-    }).catch(error => {
-        successMessage.style.display = 'none';
-        errorMessage.style.display = 'block';
-    });
+// Listen for screen resize events to adjust the layout
+window.addEventListener('resize', checkScreenSize);
+
+// Run checkScreenSize on page load to ensure correct visibility
+window.addEventListener('load', checkScreenSize);
+
+// Function to handle the dropdown behavior
+function toggleDropdown() {
+    const dropdownMenu = document.querySelector('.dropdown-menu');
+    dropdownMenu.classList.toggle('show');
+}
+
+// Close the dropdown menu if the user clicks outside of it
+window.addEventListener('click', function(event) {
+    const dropdown = document.querySelector('.dropdown');
+    const dropdownMenu = document.querySelector('.dropdown-menu');
+    
+    // If the click is outside of the dropdown button, close the dropdown
+    if (!dropdown.contains(event.target)) {
+        dropdownMenu.classList.remove('show');
+    }
 });
+// Function to check if an element is in the viewport
+function isElementInViewport(el) {
+    const rect = el.getBoundingClientRect();
+    return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    );
+}
+
+// Function to add fade-in effect when element is in the viewport
+function fadeInOnScroll() {
+    const sections = document.querySelectorAll('section:not(.home)'); // Target all sections except the Home section
+
+    sections.forEach(el => {
+        // If the section is in the viewport, add the 'visible' class
+        if (isElementInViewport(el)) {
+            el.classList.add('visible');
+        }
+    });
+}
+
+// To optimize performance, debounce the scroll event handler
+let isScrolling = false;
+window.addEventListener('scroll', function() {
+    if (!isScrolling) {
+        isScrolling = true;
+        window.requestAnimationFrame(function() {
+            fadeInOnScroll();
+            isScrolling = false;
+        });
+    }
+});
+
+// Also, run the fade-in check on page load to catch already visible sections
+window.addEventListener('load', fadeInOnScroll);
