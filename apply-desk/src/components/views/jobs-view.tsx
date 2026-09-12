@@ -1,16 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { CountrySelect } from "@/components/country-select";
 import { useDesk } from "@/components/desk-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { countryLabel } from "@/lib/countries";
 import { postedLabel } from "@/lib/dates";
 
 export function JobsView() {
-  const { store, scanning, scan, applied } = useDesk();
+  const { store, scanning, scan, applied, saveSettings } = useDesk();
   const [logging, setLogging] = useState<string | null>(null);
   if (!store) return null;
   const jobs = store.jobs;
+  const country = store.settings.country || "worldwide";
   const already = new Set(
     store.applications.filter((a) => a.status !== "queued").map((a) => a.jobId),
   );
@@ -21,17 +24,24 @@ export function JobsView() {
         <div>
           <h1 className="font-heading text-4xl">Openings</h1>
           <p className="mt-2 max-w-xl text-muted-foreground">
-            Ranked against your CV from job boards worldwide, posted in the last
-            7 days: IT / ICT / helpdesk plus generalist office roles. Sources
-            include RemoteOK, Remotive, Jobicy, Arbeitnow, Himalayas, Working
-            Nomads, We Work Remotely, Indeed (US, UK, CA, AU, IN, ZA, NG, KE,
-            AE, PH), Careerjet, LinkedIn, BrighterMonday, MyJobMag, Fuzu, and
-            web search. Kenya and remote listings are boosted.
+            Ranked against your CV from the last 7 days in{" "}
+            <span className="text-foreground">{countryLabel(country)}</span>: IT /
+            ICT / helpdesk plus generalist office roles. Remote jobs stay in the
+            list. Change country below, then scan.
           </p>
         </div>
         <Button type="button" disabled={scanning} onClick={() => void scan()}>
           {scanning ? "Scanning…" : "Scan again"}
         </Button>
+      </div>
+      <div className="mt-6 max-w-md">
+        <CountrySelect
+          value={country}
+          disabled={scanning}
+          onChange={(code) => {
+            void saveSettings(store.settings.minScore, store.settings.keywords, code);
+          }}
+        />
       </div>
       {jobs.length === 0 ? (
         <p className="mt-10 text-muted-foreground">

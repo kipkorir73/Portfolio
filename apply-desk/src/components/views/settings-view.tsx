@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CountrySelect } from "@/components/country-select";
 import { GmailPanel } from "@/components/gmail-panel";
 import { useDesk } from "@/components/desk-provider";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import { PROFILE } from "@/lib/profile";
 export function SettingsView() {
   const { store, saveSettings } = useDesk();
   const [saving, setSaving] = useState(false);
+  const [country, setCountry] = useState(store?.settings.country || "worldwide");
   if (!store) return null;
   const { settings } = store;
 
@@ -60,10 +62,12 @@ export function SettingsView() {
           void saveSettings(
             Number(form.get("minScore") ?? 40),
             String(form.get("keywords") ?? settings.keywords),
+            String(form.get("country") ?? country),
           ).finally(() => setSaving(false));
         }}
       >
         <h2 className="font-heading text-2xl">Scan</h2>
+        <CountrySelect value={country} onChange={setCountry} />
         <div className="space-y-2">
           <Label htmlFor="minScore">Minimum match score</Label>
           <Input id="minScore" name="minScore" type="number" min={0} max={99} defaultValue={settings.minScore} />

@@ -30,6 +30,7 @@ function seed(): Store {
       connectedEmail: null,
       lastScanAt: null,
       lastApplyAt: null,
+      country: "worldwide",
     },
     jobs: [],
     applications: [],
@@ -101,6 +102,9 @@ function asAuth(value: unknown): GmailAuth | null {
 function normalizeStore(store: Store): Store {
   if (!store.profile) {
     store.profile = { cvFileName: null, cvUploadedAt: null, cvText: null };
+  }
+  if (!store.settings.country) {
+    store.settings.country = "worldwide";
   }
   return store;
 }

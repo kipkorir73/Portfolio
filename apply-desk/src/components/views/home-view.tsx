@@ -2,15 +2,17 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { CountrySelect } from "@/components/country-select";
 import { useDesk } from "@/components/desk-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { countryLabel } from "@/lib/countries";
 import { formatWhen } from "@/lib/dates";
 import { PROFILE } from "@/lib/profile";
 
 export function HomeView() {
-  const { store, stats, scanning, scan } = useDesk();
+  const { store, stats, scanning, scan, saveSettings } = useDesk();
   const router = useRouter();
   if (!store || !stats) return null;
   const recent = store.applications.slice(0, 5);
@@ -24,9 +26,9 @@ export function HomeView() {
           <p className="text-sm text-muted-foreground">Signed in as</p>
           <h1 className="font-heading text-4xl sm:text-5xl">{PROFILE.name}</h1>
           <p className="mt-2 max-w-xl text-muted-foreground">
-            Scan matching roles, open the link, apply yourself. The desk logs
-            what you mark and keeps it when you log out. Connect Gmail from
-            Inbox to pull recruiter replies.
+            Scan matching roles in {countryLabel(store.settings.country)}, open
+            the link, apply yourself. The desk logs what you mark and keeps it
+            when you log out. Connect Gmail from Inbox to pull recruiter replies.
           </p>
         </div>
         <Button
@@ -42,6 +44,15 @@ export function HomeView() {
           {scanning ? "Scanning…" : "Scan openings"}
         </Button>
       </div>
+      <div className="mt-6 max-w-md">
+        <CountrySelect
+          value={store.settings.country || "worldwide"}
+          disabled={scanning}
+          onChange={(code) => {
+            void saveSettings(store.settings.minScore, store.settings.keywords, code);
+          }}
+        />
+      </div>
 
       <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="Openings" value={stats.openRoles} href="/jobs" />
@@ -51,7 +62,7 @@ export function HomeView() {
       </section>
 
       <p className="mt-4 text-xs text-muted-foreground">
-        Last scan: {formatWhen(stats.lastScanAt)}. Gmail:{" "}
+        Last scan: {formatWhen(stats.lastScanAt)} · Country: {countryLabel(store.settings.country)}. Gmail:{" "}
         {stats.emailConnected
           ? `connected${store.settings.connectedEmail ? ` (${store.settings.connectedEmail})` : ""}`
           : "not connected — use Inbox to connect"}

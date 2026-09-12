@@ -61,6 +61,7 @@ export type Settings = {
   dailyCap: number;
   minScore: number;
   keywords: string;
+  country: string;
   emailConnected: boolean;
   connectedEmail: string | null;
   lastScanAt: string | null;

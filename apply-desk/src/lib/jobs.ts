@@ -1,3 +1,4 @@
+import { jobMatchesCountry, urlsForCountry } from "./countries";
 import { guessChannel, scoreText } from "./match";
 import type { Channel, Job } from "./types";
 
@@ -539,46 +540,6 @@ function parseJsonBoard(url: string, raw: string, scannedAt: string, keywords: s
   return jobs;
 }
 
-const JSON_URLS = [
-  "https://remoteok.com/api",
-  "https://remotive.com/api/remote-jobs?search=IT%20support",
-  "https://remotive.com/api/remote-jobs?category=customer-support",
-  "https://jobicy.com/api/v2/remote-jobs?count=50",
-  "https://www.arbeitnow.com/api/job-board-api",
-  "https://himalayas.app/jobs/api?limit=40",
-  "https://www.workingnomads.com/jobsapi.json",
-];
-
-const RSS_URLS = [
-  "https://www.indeed.com/rss?q=IT+support&l=Remote",
-  "https://www.indeed.co.uk/rss?q=IT+support&l=Remote",
-  "https://ca.indeed.com/rss?q=help+desk&l=Remote",
-  "https://au.indeed.com/rss?q=IT+support",
-  "https://in.indeed.com/rss?q=IT+support",
-  "https://za.indeed.com/rss?q=IT+support",
-  "https://ng.indeed.com/rss?q=IT+support",
-  "https://ke.indeed.com/rss?q=IT+support&l=Kenya",
-  "https://ke.indeed.com/rss?q=office+assistant&l=Kenya",
-  "https://www.indeed.ae/rss?q=IT+support",
-  "https://ph.indeed.com/rss?q=customer+service",
-  "https://www.careerjet.com/search/rss?s=IT+support&l=Remote",
-  "https://www.careerjet.co.uk/search/rss?s=help+desk&l=Remote",
-  "https://www.careerjet.co.ke/search/rss?s=IT+support&l=Kenya",
-  "https://weworkremotely.com/categories/remote-customer-support-jobs.rss",
-  "https://weworkremotely.com/categories/remote-programming-jobs.rss",
-  "https://remoteok.com/remote-jobs.rss",
-];
-
-const HTML_URLS = [
-  "https://www.brightermonday.co.ke/jobs?q=IT+support",
-  "https://www.brightermonday.co.ke/jobs?q=office+assistant",
-  "https://www.myjobmag.co.ke/jobs-by-field/it-telecoms",
-  "https://www.myjobmag.co.ke/jobs-by-field/admin",
-  "https://www.fuzu.com/kenya/jobs?q=ICT",
-  "https://www.linkedin.com/jobs/search?keywords=IT%20Support&location=Worldwide&f_TPR=r604800&f_WT=2",
-  "https://html.duckduckgo.com/html/?q=remote%20IT%20support%20OR%20helpdesk%20OR%20office%20assistant%20jobs",
-];
-
 function parsePage(url: string, html: string, scannedAt: string, keywords: string): Job[] {
   try {
     const trimmed = html.trim();
@@ -608,25 +569,26 @@ function parsePage(url: string, html: string, scannedAt: string, keywords: strin
   return [];
 }
 
-export async function collectJobs(keywords: string): Promise<Job[]> {
+export async function collectJobs(keywords: string, country = "worldwide"): Promise<Job[]> {
   const scannedAt = new Date().toISOString();
   const found: Job[] = [];
   const started = Date.now();
   const remaining = () => SCAN_BUDGET_MS - (Date.now() - started);
+  const { json, rss, html } = urlsForCountry(country);
 
   async function runUrls(urls: string[]) {
     const ms = Math.min(FETCH_MS, Math.max(0, remaining() - 200));
     if (ms < 400) return;
     const pages = await Promise.all(urls.map((url) => fetchText(url, ms)));
-    pages.forEach((html, i) => {
-      if (!html) return;
-      found.push(...parsePage(urls[i], html, scannedAt, keywords));
+    pages.forEach((body, i) => {
+      if (!body) return;
+      found.push(...parsePage(urls[i], body, scannedAt, keywords));
     });
   }
 
-  await runUrls(JSON_URLS);
-  if (remaining() > 900) await runUrls(RSS_URLS);
-  if (remaining() > 900) await runUrls(HTML_URLS);
+  await runUrls(json);
+  if (remaining() > 900) await runUrls(rss);
+  if (remaining() > 900) await runUrls(html);
 
   const byId = new Map<string, Job>();
   for (const job of found) {
@@ -635,6 +597,7 @@ export async function collectJobs(keywords: string): Promise<Job[]> {
     if (isBlockedListing(job)) continue;
     if (!IT_HINT.test(blob) && !GENERALIST_HINT.test(blob)) continue;
     if (!withinWeek(job.postedAt)) continue;
+    if (!jobMatchesCountry(job, country)) continue;
     const prev = byId.get(job.id);
     if (!prev || job.score > prev.score) byId.set(job.id, job);
   }

@@ -33,7 +33,7 @@ Optional env vars (Site settings → Environment variables):
 - `DESK_PASSWORD` — login password (defaults to `sunrise-desk`)
 - `CRON_SECRET` — if you later schedule `/api/cron/daily`
 
-After deploy, open the Netlify URL, log in, and run **Scan openings**. Scans cover worldwide IT and generalist office jobs from RemoteOK, Remotive, Jobicy, Arbeitnow, Himalayas, Working Nomads, We Work Remotely, Indeed (many countries), Careerjet, LinkedIn, BrighterMonday, MyJobMag, Fuzu, and the web.
+After deploy, open the Netlify URL, log in, pick a **Country** on Today or Openings, then **Scan openings**. Worldwide searches every board; a specific country plus remote jobs.
 
 If a deploy is already live, push this repo and use **Trigger deploy** (Deploys → Trigger deploy) so Netlify rebuilds.
 

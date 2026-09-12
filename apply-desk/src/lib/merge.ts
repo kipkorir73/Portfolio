@@ -73,6 +73,7 @@ export function mergeStores(server: Store, local: Store | null | undefined): Sto
       connectedEmail: server.settings.connectedEmail,
       lastScanAt: later(server.settings.lastScanAt, local.settings.lastScanAt),
       lastApplyAt: later(server.settings.lastApplyAt, local.settings.lastApplyAt),
+      country: local.settings.country || server.settings.country || "worldwide",
     },
   };
 }

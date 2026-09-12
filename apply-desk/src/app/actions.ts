@@ -54,6 +54,8 @@ export async function saveSettingsAction(formData: FormData) {
     s.settings.autoApplyEmail = false;
     s.settings.minScore = Math.max(0, Number(formData.get("minScore") ?? 40));
     s.settings.keywords = String(formData.get("keywords") ?? s.settings.keywords);
+    const country = String(formData.get("country") ?? s.settings.country ?? "worldwide");
+    if (country) s.settings.country = country;
   });
   redirect("/settings?saved=1");
 }

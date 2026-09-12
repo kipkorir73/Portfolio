@@ -28,7 +28,7 @@ type DeskContextValue = {
   applied: (jobId: string) => Promise<void>;
   setStatus: (id: string, status: ApplicationStatus) => Promise<void>;
   markRead: (id: string) => Promise<void>;
-  saveSettings: (minScore: number, keywords: string) => Promise<void>;
+  saveSettings: (minScore: number, keywords: string, country?: string) => Promise<void>;
   syncInbox: () => Promise<void>;
   disconnectGmail: () => Promise<void>;
   connectGmailApp: (email: string, appPassword: string) => Promise<void>;
@@ -186,8 +186,8 @@ export function DeskProvider({ children }: { children: React.ReactNode }) {
   );
 
   const saveSettings = useCallback(
-    async (minScore: number, keywords: string) => {
-      await post({ op: "settings", minScore, keywords });
+    async (minScore: number, keywords: string, country?: string) => {
+      await post({ op: "settings", minScore, keywords, country });
       toast.success("Saved.");
     },
     [post],
