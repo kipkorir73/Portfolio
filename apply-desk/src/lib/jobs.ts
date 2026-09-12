@@ -1,12 +1,14 @@
-import { jobMatchesCountry, urlsForCountry } from "./countries";
+import {
+  countryNameFromHost,
+  hiringLocationFromUrl,
+  jobMatchesCountry,
+  urlsForCountry,
+} from "./countries";
 import { guessChannel, scoreText } from "./match";
 import type { Channel, Job } from "./types";
 
 const UA =
   "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
-
-const KE_PLACE =
-  /\b(kenya|nairobi|mombasa|kisumu|nakuru|eldoret|thika|kiambu|machakos|nyeri|kitale|kakamega|meru|kisii|malindi|kilifi|kajiado|embu)\b/i;
 
 const IT_HINT =
   /\b(ict|it support|it officer|it assistant|it specialist|it intern|it manager|help ?desk|service desk|sysadmin|systems? admin|network admin|network engineer|support engineer|technical support|desktop (support|technician)|it technician|ict technician|information technology|information systems|computer (operator|technician|teacher)|mis officer|lab technician|cabling|wifi|biometric)\b/i;
@@ -164,30 +166,23 @@ function sourceFromUrl(url: string): { source: string; channel: Channel } {
   return { source: guessChannel(url, null) === "job_board" ? "Web" : "Web", channel: guessChannel(url, null) };
 }
 
-function regionTag(location: string, url: string) {
-  const blob = `${location} ${url}`;
-  if (KE_PLACE.test(blob)) return "Kenya";
-  if (/remote|anywhere|worldwide|work from home|distributed/i.test(blob)) return "Remote";
-  const first = location.split(/[,|/]/)[0]?.trim();
-  return first ? first.slice(0, 28) : "Worldwide";
+function regionTag(location: string) {
+  const place = location.replace(/\s*·\s*(Remote|Hybrid|On-site)\s*$/i, "").trim();
+  if (/^(remote|anywhere|worldwide|work from home|distributed)$/i.test(place)) return "Remote";
+  const first = place.split(/[,·|/]/)[0]?.trim();
+  return first ? first.slice(0, 40) : "Worldwide";
 }
 
-function rssLocation(url: string, title: string, description: string) {
-  const blob = `${url} ${title} ${description}`;
-  if (KE_PLACE.test(blob) || /ke\.indeed|careerjet\.co\.ke/i.test(url)) return "Kenya";
-  if (/remote|anywhere|worldwide|work from home/i.test(blob) || /[?&]l=Remote/i.test(url)) return "Remote";
-  if (/indeed\.co\.uk|reed\.co\.uk/i.test(url)) return "United Kingdom";
-  if (/au\.indeed|seek\.com\.au|careerjet\.com\.au/i.test(url)) return "Australia";
-  if (/ca\.indeed/i.test(url)) return "Canada";
-  if (/in\.indeed|naukri/i.test(url)) return "India";
-  if (/za\.indeed|pnet\.co\.za/i.test(url)) return "South Africa";
-  if (/ng\.indeed/i.test(url)) return "Nigeria";
-  if (/ph\.indeed/i.test(url)) return "Philippines";
-  if (/indeed\.ae|bayt/i.test(url)) return "UAE";
-  if (/ie\.indeed/i.test(url)) return "Ireland";
-  if (/de\.indeed/i.test(url)) return "Germany";
-  if (/indeed\.fr/i.test(url)) return "France";
-  return "Worldwide";
+function rssLocation(feedUrl: string, jobUrl: string, title: string, description: string) {
+  const fromFeed = hiringLocationFromUrl(feedUrl);
+  if (fromFeed) return fromFeed;
+  const fromHost = countryNameFromHost(feedUrl) || countryNameFromHost(jobUrl);
+  if (fromHost) return fromHost;
+  const blob = `${jobUrl} ${title} ${description}`;
+  if (/remote|anywhere|worldwide|work from home/i.test(blob)) return "Remote";
+  const inPlace = blob.match(/\bin\s+([A-Z][A-Za-z .'-]{2,40}(?:,\s*[A-Z][A-Za-z .'-]{2,40})?)/);
+  if (inPlace?.[1]) return inPlace[1].trim();
+  return "Location not listed";
 }
 
 function isBlockedListing(job: Pick<Job, "title" | "description">) {
@@ -221,7 +216,7 @@ async function fetchText(url: string, ms: number) {
 function makeJob(partial: Omit<Job, "id" | "channel" | "score" | "reasons" | "tags" | "applyEmail"> & { applyEmail?: string | null }, keywords: string): Job {
   const { score, reasons } = scoreText(partial.title, `${partial.description} ${partial.location}`, keywords);
   const { source, channel } = sourceFromUrl(partial.url);
-  const region = regionTag(partial.location, partial.url);
+  const region = regionTag(partial.location);
   return {
     ...partial,
     id: idFrom(partial.url, partial.title),
@@ -342,15 +337,47 @@ function parseFuzu(html: string, scannedAt: string, keywords: string): Job[] {
   return jobs;
 }
 
-function parseLinkedIn(html: string, scannedAt: string, keywords: string): Job[] {
+function linkedinCardPlace(card: string, searchedHiringIn: string) {
+  const span =
+    decode(card.match(/job-search-card__location[^>]*>([\s\S]*?)<\/span>/)?.[1] ?? "") ||
+    decode(card.match(/job-result-card__location[^>]*>([\s\S]*?)<\/span>/)?.[1] ?? "");
+  const locality = decode(card.match(/"addressLocality"\s*:\s*"([^"]+)"/)?.[1] ?? "");
+  const region = decode(card.match(/"addressRegion"\s*:\s*"([^"]+)"/)?.[1] ?? "");
+  const country = decode(card.match(/"addressCountry"\s*:\s*"([^"]+)"/)?.[1] ?? "");
+  const fromJson = [locality, region, country].filter(Boolean).join(", ");
+  const workplace = /remote/i.test(card)
+    ? "Remote"
+    : /hybrid/i.test(card)
+      ? "Hybrid"
+      : /on-?site/i.test(card)
+        ? "On-site"
+        : "";
+  const place = span || fromJson || searchedHiringIn;
+  return [place || "Hiring location not listed", workplace].filter(Boolean).join(" · ");
+}
+
+function parseLinkedIn(html: string, scannedAt: string, keywords: string, searchUrl: string): Job[] {
   const jobs: Job[] = [];
-  for (const card of html.split("job-search-card").slice(1)) {
-    const href = card.match(/href="(https:\/\/[a-z.]*linkedin\.com\/jobs\/view\/[^"?]+)/)?.[1];
-    const title = decode(card.match(/base-search-card__title[^>]*>([\s\S]*?)<\/h3>/)?.[1] ?? "");
-    const company = decode(card.match(/base-search-card__subtitle[^>]*>([\s\S]*?)<\/h4>/)?.[1] ?? "Employer");
-    const location = decode(card.match(/job-search-card__location[^>]*>([\s\S]*?)<\/span>/)?.[1] ?? "Kenya");
+  const searchedHiringIn = hiringLocationFromUrl(searchUrl);
+  const chunks = html.includes("job-search-card")
+    ? html.split("job-search-card").slice(1)
+    : html.split("base-card").slice(1);
+  for (const card of chunks) {
+    const rawHref =
+      card.match(/href="(https:\/\/[a-z.]*linkedin\.com\/jobs\/view\/[^"?]+)/)?.[1] ||
+      card.match(/href="(\/jobs\/view\/[^"?]+)/)?.[1];
+    const href = rawHref?.startsWith("http") ? rawHref : rawHref ? `https://www.linkedin.com${rawHref}` : "";
+    const title =
+      decode(card.match(/base-search-card__title[^>]*>([\s\S]*?)<\/h3>/)?.[1] ?? "") ||
+      decode(card.match(/<h3[^>]*>([\s\S]*?)<\/h3>/)?.[1] ?? "");
+    const company =
+      decode(card.match(/base-search-card__subtitle[^>]*>([\s\S]*?)<\/h4>/)?.[1] ?? "") ||
+      decode(card.match(/<h4[^>]*>([\s\S]*?)<\/h4>/)?.[1] ?? "") ||
+      "Employer";
+    const location = linkedinCardPlace(card, searchedHiringIn);
     const postedAt =
       parsePosted(card.match(/job-search-card__listdate[^>]*datetime="([^"]+)"/)?.[1] ?? "") ||
+      parsePosted(card.match(/datetime="([^"]+)"/)?.[1] ?? "") ||
       parsePosted(card.match(/job-search-card__listdate[\s\S]{0,400}?<\/time>/)?.[0] ?? "") ||
       scannedAt;
     if (!href || !title || !withinWeek(postedAt)) continue;
@@ -362,7 +389,7 @@ function parseLinkedIn(html: string, scannedAt: string, keywords: string): Job[]
           location,
           source: "LinkedIn",
           url: cleanUrl(href),
-          description: `${company} · ${location}`,
+          description: `${company} is hiring ${title} in ${location}`,
           postedAt,
           scannedAt,
         },
@@ -373,8 +400,17 @@ function parseLinkedIn(html: string, scannedAt: string, keywords: string): Job[]
   return jobs;
 }
 
-function parseDuckDuckGo(html: string, scannedAt: string, keywords: string): Job[] {
+function parseDuckDuckGo(html: string, scannedAt: string, keywords: string, searchUrl: string): Job[] {
   const jobs: Job[] = [];
+  const searched = hiringLocationFromUrl(searchUrl);
+  const queryPlace = (() => {
+    try {
+      return decodeURIComponent(new URL(searchUrl).searchParams.get("q") || "");
+    } catch {
+      return "";
+    }
+  })();
+  const queryCountry = queryPlace.split(/\bIT support|\bhelpdesk|\bjobs\b/i)[0]?.trim();
   const anchors = [
     ...html.matchAll(/class="result__a"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g),
   ];
@@ -394,12 +430,13 @@ function parseDuckDuckGo(html: string, scannedAt: string, keywords: string): Job
     } catch {
       continue;
     }
+    const inTitle = title.match(/\b(?:in|at)\s+([A-Z][A-Za-z .'-]{2,40}(?:,\s*[A-Z][A-Za-z .'-]{2,40})?)/)?.[1]?.trim();
     jobs.push(
       makeJob(
         {
           title: title.replace(/\s*[|\-–].{0,50}$/, "").trim() || title,
           company: host,
-          location: KE_PLACE.test(title) ? "Kenya" : "Worldwide",
+          location: inTitle || searched || queryCountry || "Hiring location not listed",
           source: sourceFromUrl(url).source,
           url,
           description: title,
@@ -418,7 +455,7 @@ function tagFrom(xml: string, name: string) {
   return m ? strip(m[1]) : "";
 }
 
-function parseRss(xml: string, scannedAt: string, keywords: string, sourceHint: string): Job[] {
+function parseRss(xml: string, scannedAt: string, keywords: string, sourceHint: string, feedUrl: string): Job[] {
   const jobs: Job[] = [];
   const chunks = xml.split(/<item[\s>]/i).slice(1);
   const entries = chunks.length ? chunks : xml.split(/<entry[\s>]/i).slice(1);
@@ -445,7 +482,7 @@ function parseRss(xml: string, scannedAt: string, keywords: string, sourceHint: 
         {
           title,
           company,
-          location: rssLocation(link, title, description),
+          location: rssLocation(feedUrl, link, title, description),
           source: sourceFromUrl(link).source === "Web" ? sourceHint : sourceFromUrl(link).source,
           url: cleanUrl(link),
           description: description.slice(0, 420),
@@ -556,13 +593,13 @@ function parsePage(url: string, html: string, scannedAt: string, keywords: strin
             : url.includes("remoteok")
               ? "RemoteOK"
               : "RSS";
-      return parseRss(html, scannedAt, keywords, hint);
+      return parseRss(html, scannedAt, keywords, hint, url);
     }
     if (url.includes("brightermonday")) return parseBrighterMonday(html, scannedAt, keywords);
     if (url.includes("myjobmag")) return parseMyJobMag(html, scannedAt, keywords);
     if (url.includes("fuzu")) return parseFuzu(html, scannedAt, keywords);
-    if (url.includes("linkedin.com/jobs")) return parseLinkedIn(html, scannedAt, keywords);
-    if (url.includes("duckduckgo.com")) return parseDuckDuckGo(html, scannedAt, keywords);
+    if (url.includes("linkedin.com/jobs")) return parseLinkedIn(html, scannedAt, keywords, url);
+    if (url.includes("duckduckgo.com")) return parseDuckDuckGo(html, scannedAt, keywords, url);
   } catch {
     return [];
   }
@@ -587,8 +624,8 @@ export async function collectJobs(keywords: string, country = "worldwide"): Prom
   }
 
   await runUrls(json);
-  if (remaining() > 900) await runUrls(rss);
   if (remaining() > 900) await runUrls(html);
+  if (remaining() > 900) await runUrls(rss);
 
   const byId = new Map<string, Job>();
   for (const job of found) {

@@ -2,7 +2,7 @@
 
 Personal job desk for **Collins Kipkorir** — IT Assistant at Barsiele Sunrise Academy.
 
-Scans **worldwide jobs from the last 7 days** (remote APIs plus Indeed, Careerjet, LinkedIn, Kenya boards, and web search) for IT / helpdesk roles and generalist office work.
+Scans **jobs from the last 7 days** across remote APIs plus Indeed, Careerjet, LinkedIn, Kenya boards, and web search. Pick the **country they are hiring in** (Africa and the rest of the world). LinkedIn uses LinkedIn’s own hiring location on each card — city/country, not a Kenya default.
 
 ## Run
 
@@ -33,7 +33,7 @@ Optional env vars (Site settings → Environment variables):
 - `DESK_PASSWORD` — login password (defaults to `sunrise-desk`)
 - `CRON_SECRET` — if you later schedule `/api/cron/daily`
 
-After deploy, open the Netlify URL, log in, pick a **Country** on Today or Openings, then **Scan openings**. Worldwide searches every board; a specific country plus remote jobs.
+After deploy, open the Netlify URL, log in, pick a **Country they are hiring in** on Today or Openings, then **Scan openings**. LinkedIn is queried with that country (and main cities) as the location filter. Worldwide covers many hiring markets plus remote.
 
 If a deploy is already live, push this repo and use **Trigger deploy** (Deploys → Trigger deploy) so Netlify rebuilds.
 
