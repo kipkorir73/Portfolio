@@ -9,7 +9,7 @@ function seed(): Store {
     settings: {
       autoApplyEmail: false,
       dailyCap: 6,
-      minScore: 40,
+      minScore: 22,
       keywords: "IT support, helpdesk, systems administrator, network, Nairobi, ICT",
       emailConnected: false,
       connectedEmail: null,
@@ -29,10 +29,16 @@ export function readStore(): Store {
     return initial;
   }
   const store = JSON.parse(readFileSync(FILE, "utf8")) as Store;
+  let dirty = false;
   if (store.settings.autoApplyEmail) {
     store.settings.autoApplyEmail = false;
-    writeStore(store);
+    dirty = true;
   }
+  if (store.settings.minScore === 40) {
+    store.settings.minScore = 22;
+    dirty = true;
+  }
+  if (dirty) writeStore(store);
   return store;
 }
 

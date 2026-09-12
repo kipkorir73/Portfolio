@@ -2,7 +2,7 @@
 
 Personal job desk for **Collins Kipkorir** — IT Assistant at Barsiele Sunrise Academy.
 
-Scans openings that fit the CV and leaves them with an apply link. You apply yourself, then tap **I applied**. Gmail follow-up is wired later, when you grant access — the desk does not send applications.
+Scans **live Kenya jobs** from BrighterMonday, MyJobMag, and Fuzu. You apply yourself from the posting link, then tap **I applied**. Gmail follow-up is wired later.
 
 ## Run
 
@@ -22,7 +22,7 @@ From Today or Openings, **Scan openings**. Or:
 
 `GET /api/cron/daily?secret=YOUR_CRON_SECRET`
 
-That only refreshes the list. It does not apply.
+That only refreshes Kenya listings. It does not apply.
 
 ## Gmail
 

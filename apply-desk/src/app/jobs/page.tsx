@@ -24,8 +24,8 @@ export default async function JobsPage({
         <div>
           <h1 className="font-heading text-4xl">Openings</h1>
           <p className="mt-2 max-w-xl text-muted-foreground">
-            Ranked against your CV. Open the link and apply yourself. Come back
-            and tap I applied so follow-up can match Gmail later.
+            Ranked against your CV from live Kenya boards (BrighterMonday,
+            MyJobMag, Fuzu). Open the link and apply yourself.
           </p>
         </div>
         <form action={scanAction}>

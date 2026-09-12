@@ -41,9 +41,7 @@ export async function runDailyScan() {
   const matched = jobs.filter((j) => j.score >= min).slice(0, 40);
 
   mutateStore((s) => {
-    const existing = new Map(s.jobs.map((j) => [j.id, j]));
-    for (const job of matched) existing.set(job.id, job);
-    s.jobs = [...existing.values()].sort((a, b) => b.score - a.score).slice(0, 80);
+    s.jobs = matched.slice(0, 80);
     s.settings.lastScanAt = new Date().toISOString();
     s.settings.autoApplyEmail = false;
   });
