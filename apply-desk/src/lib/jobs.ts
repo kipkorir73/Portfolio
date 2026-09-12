@@ -99,6 +99,7 @@ async function fetchJson(url: string) {
   const res = await fetch(url, {
     headers: { "user-agent": "ApplyDesk/1.0 (personal job matcher)" },
     cache: "no-store",
+    signal: AbortSignal.timeout(8000),
   });
   if (!res.ok) throw new Error(`${url} ${res.status}`);
   return res.json();
@@ -148,17 +149,28 @@ export async function collectJobs(keywords: string): Promise<Job[]> {
   const scannedAt = new Date().toISOString();
   const found: Job[] = [];
 
-  try {
-    const remoteOk = (await fetchJson("https://remoteok.com/api")) as unknown[];
-    found.push(...fromRemoteOk(remoteOk, keywords, scannedAt));
-  } catch {
-    // public API can throttle; local board still runs
+  const [remoteOkResult, arbeitnowResult] = await Promise.allSettled([
+    fetchJson("https://remoteok.com/api"),
+    fetchJson("https://www.arbeitnow.com/api/job-board-api"),
+  ]);
+
+  if (remoteOkResult.status === "fulfilled") {
+    found.push(...fromRemoteOk(remoteOkResult.value as unknown[], keywords, scannedAt));
   }
 
-  try {
-    const arbeitnow = (await fetchJson(
-      "https://www.arbeitnow.com/api/job-board-api",
-    )) as { data?: Array<{ slug: string; title: string; company_name: string; location: string; url: string; description: string; tags?: string[]; created_at: number }> };
+  if (arbeitnowResult.status === "fulfilled") {
+    const arbeitnow = arbeitnowResult.value as {
+      data?: Array<{
+        slug: string;
+        title: string;
+        company_name: string;
+        location: string;
+        url: string;
+        description: string;
+        tags?: string[];
+        created_at: number;
+      }>;
+    };
     for (const r of arbeitnow.data ?? []) {
       const { score, reasons } = scoreText(r.title, strip(r.description), keywords);
       found.push({
@@ -178,8 +190,6 @@ export async function collectJobs(keywords: string): Promise<Job[]> {
         scannedAt,
       });
     }
-  } catch {
-    // ignore
   }
 
   for (const job of SEED_JOBS) {
