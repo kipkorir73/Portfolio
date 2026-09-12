@@ -189,7 +189,7 @@ export function DeskGate({ children }: { children: React.ReactNode }) {
           type="button"
           className="mt-6 rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground"
           onClick={() => {
-            void refresh();
+            void refresh().catch(() => {});
           }}
         >
           Retry
