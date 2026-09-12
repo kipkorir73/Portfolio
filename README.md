@@ -1,15 +1,11 @@
-# Collins Kipkorir — Portfolio
+# Collins Kipkorir — portfolio
 
-Personal portfolio site cloned from [kipkorir73/Portfolio](https://github.com/kipkorir73/Portfolio). Static HTML, CSS, and JavaScript.
+Personal site for Collins Kipkorir, IT Assistant at Barsiele Sunrise Academy (Jan 2025–present). Static HTML and CSS, aligned to the current CV.
 
 ## Run locally
-
-From the project root:
 
 ```bash
 python3 -m http.server 43123
 ```
 
-Then open [http://127.0.0.1:43123](http://127.0.0.1:43123).
-
-No build step or dependencies are required.
+Open [http://127.0.0.1:43123](http://127.0.0.1:43123).
