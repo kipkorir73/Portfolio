@@ -2,6 +2,7 @@ import { readMessageAction } from "@/app/actions";
 import { Shell } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { formatWhen } from "@/lib/dates";
 import { PROFILE } from "@/lib/profile";
 import { readStore } from "@/lib/store";
 
@@ -41,7 +42,7 @@ export default async function InboxPage() {
               <h2 className="mt-2 font-medium">{m.subject}</h2>
               <p className="text-sm text-muted-foreground">
                 {m.from} &lt;{m.fromEmail}&gt; ·{" "}
-                {new Date(m.receivedAt).toLocaleString("en-KE")}
+                {formatWhen(m.receivedAt)}
               </p>
               <p className="mt-3 whitespace-pre-wrap text-sm">{m.body}</p>
               {m.unread ? (

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { logoutAction } from "@/app/actions";
 import { PROFILE } from "@/lib/profile";
 import { Button } from "@/components/ui/button";
 
@@ -44,7 +43,7 @@ export function Shell({
             <span className="hidden text-xs text-muted-foreground sm:inline">
               {PROFILE.email}
             </span>
-            <form action={logoutAction}>
+            <form action="/api/logout" method="post">
               <Button variant="outline" size="sm" type="submit">
                 Log out
               </Button>

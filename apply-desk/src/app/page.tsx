@@ -6,14 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { statsFrom } from "@/lib/daily";
 import { PROFILE } from "@/lib/profile";
+import { formatWhen } from "@/lib/dates";
 import { readStore } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
-
-function fmt(iso: string | null) {
-  if (!iso) return "Not yet";
-  return new Date(iso).toLocaleString("en-KE", { dateStyle: "medium", timeStyle: "short" });
-}
 
 export default async function HomePage() {
   const store = readStore();
@@ -48,7 +44,7 @@ export default async function HomePage() {
       </section>
 
       <p className="mt-4 text-xs text-muted-foreground">
-        Last scan: {fmt(stats.lastScanAt)}. Gmail:{" "}
+        Last scan: {formatWhen(stats.lastScanAt)}. Gmail:{" "}
         {stats.emailConnected ? "connected" : "not connected yet — add access when you are ready to follow up"}
         .
       </p>

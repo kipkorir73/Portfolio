@@ -1,4 +1,3 @@
-import { loginAction } from "@/app/actions";
 import { LOGIN_EMAIL, LOGIN_PASSWORD, PROFILE } from "@/lib/profile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,7 +22,7 @@ export default async function LoginPage({
         the posting. After that, Gmail can follow up on replies — grant access
         when you are ready.
       </p>
-      <form action={loginAction} className="mt-8 space-y-4 rounded-xl border bg-card p-5">
+      <form action="/api/login" method="post" className="mt-8 space-y-4 rounded-xl border bg-card p-5">
         {error ? (
           <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
             Email or password does not match. Use the demo login below.

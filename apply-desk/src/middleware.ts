@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api") ||
+    pathname.endsWith(".pdf")
+  ) {
+    return NextResponse.next();
+  }
+
   const session = request.cookies.get("apply_desk")?.value;
-  const isLogin = request.nextUrl.pathname.startsWith("/login");
+  const isLogin = pathname.startsWith("/login");
   if (!session && !isLogin) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
@@ -13,5 +22,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.pdf$).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

@@ -2,6 +2,7 @@ import { setStatusAction } from "@/app/actions";
 import { Shell } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { formatDay } from "@/lib/dates";
 import { readStore } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -47,7 +48,7 @@ export default function ApplicationsPage() {
                   </td>
                   <td className="px-4 py-3">{a.status}</td>
                   <td className="px-4 py-3 text-muted-foreground">
-                    {new Date(a.appliedAt).toLocaleDateString("en-KE")}
+                    {formatDay(a.appliedAt)}
                   </td>
                   <td className="px-4 py-3">
                     <form action={setStatusAction} className="flex flex-wrap gap-2">
