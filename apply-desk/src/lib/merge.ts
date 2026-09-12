@@ -47,6 +47,9 @@ export function mergeStores(server: Store, local: Store | null | undefined): Sto
   if (!local) return server;
   const serverScan = server.settings.lastScanAt ? Date.parse(server.settings.lastScanAt) : 0;
   const localScan = local.settings.lastScanAt ? Date.parse(local.settings.lastScanAt) : 0;
+  const localSettingsAt = local.settings.updatedAt ? Date.parse(local.settings.updatedAt) : 0;
+  const serverSettingsAt = server.settings.updatedAt ? Date.parse(server.settings.updatedAt) : 0;
+  const settingsFromLocal = localSettingsAt > 0 && localSettingsAt >= serverSettingsAt;
   const jobs =
     local.jobs.length === 0
       ? server.jobs
@@ -67,13 +70,18 @@ export function mergeStores(server: Store, local: Store | null | undefined): Sto
     settings: {
       autoApplyEmail: false,
       dailyCap: local.settings.dailyCap || server.settings.dailyCap,
-      minScore: local.settings.minScore ?? server.settings.minScore,
-      keywords: local.settings.keywords || server.settings.keywords,
+      minScore: (settingsFromLocal ? local.settings.minScore : server.settings.minScore) ?? 10,
+      keywords: (settingsFromLocal ? local.settings.keywords : server.settings.keywords) || server.settings.keywords,
       emailConnected: Boolean(server.settings.emailConnected),
       connectedEmail: server.settings.connectedEmail,
       lastScanAt: later(server.settings.lastScanAt, local.settings.lastScanAt),
       lastApplyAt: later(server.settings.lastApplyAt, local.settings.lastApplyAt),
-      country: local.settings.country || server.settings.country || "worldwide",
+      country:
+        (settingsFromLocal ? local.settings.country : server.settings.country) ||
+        local.settings.country ||
+        server.settings.country ||
+        "worldwide",
+      updatedAt: later(server.settings.updatedAt, local.settings.updatedAt),
     },
   };
 }

@@ -31,6 +31,7 @@ function seed(): Store {
       lastScanAt: null,
       lastApplyAt: null,
       country: "worldwide",
+      updatedAt: null,
     },
     jobs: [],
     applications: [],

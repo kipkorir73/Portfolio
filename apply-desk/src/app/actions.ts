@@ -56,6 +56,7 @@ export async function saveSettingsAction(formData: FormData) {
     s.settings.keywords = String(formData.get("keywords") ?? s.settings.keywords);
     const country = String(formData.get("country") ?? s.settings.country ?? "worldwide");
     if (country) s.settings.country = country;
+    s.settings.updatedAt = new Date().toISOString();
   });
   redirect("/settings?saved=1");
 }

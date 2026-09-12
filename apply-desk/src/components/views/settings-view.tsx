@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CountrySelect } from "@/components/country-select";
 import { GmailPanel } from "@/components/gmail-panel";
 import { useDesk } from "@/components/desk-provider";
@@ -14,6 +14,9 @@ export function SettingsView() {
   const { store, saveSettings } = useDesk();
   const [saving, setSaving] = useState(false);
   const [country, setCountry] = useState(store?.settings.country || "worldwide");
+  useEffect(() => {
+    if (store?.settings.country) setCountry(store.settings.country);
+  }, [store?.settings.country]);
   if (!store) return null;
   const { settings } = store;
 

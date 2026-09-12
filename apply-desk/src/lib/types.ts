@@ -66,6 +66,7 @@ export type Settings = {
   connectedEmail: string | null;
   lastScanAt: string | null;
   lastApplyAt: string | null;
+  updatedAt?: string | null;
 };
 
 export type Store = {

@@ -187,6 +187,23 @@ export function DeskProvider({ children }: { children: React.ReactNode }) {
 
   const saveSettings = useCallback(
     async (minScore: number, keywords: string, country?: string) => {
+      setStore((prev) => {
+        const current = prev ?? readLocal();
+        if (!current) return prev;
+        const next: Store = {
+          ...current,
+          settings: {
+            ...current.settings,
+            minScore,
+            keywords,
+            country: country || current.settings.country || "worldwide",
+            updatedAt: new Date().toISOString(),
+          },
+        };
+        writeLocal(next);
+        setStats(statsFrom(next));
+        return next;
+      });
       await post({ op: "settings", minScore, keywords, country });
       toast.success("Saved.");
     },

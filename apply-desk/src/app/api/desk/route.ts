@@ -64,6 +64,7 @@ export async function POST(request: NextRequest) {
         s.settings.minScore = Math.max(0, Number(body.minScore ?? 40));
         s.settings.keywords = String(body.keywords ?? s.settings.keywords);
         if (body.country) s.settings.country = body.country;
+        s.settings.updatedAt = new Date().toISOString();
       });
       return NextResponse.json(await getDeskPayload());
     }
