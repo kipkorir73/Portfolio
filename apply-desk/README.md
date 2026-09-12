@@ -2,7 +2,7 @@
 
 Personal job desk for **Collins Kipkorir** — IT Assistant at Barsiele Sunrise Academy.
 
-Scans **live Kenya jobs** across BrighterMonday, MyJobMag, Fuzu, LinkedIn (public listings), company career pages, and web search. You apply yourself from the posting link.
+Scans **Kenya jobs from the last 7 days** across BrighterMonday, MyJobMag, Fuzu, LinkedIn, company career pages, and web search.
 
 ## Run
 
