@@ -24,8 +24,9 @@ export default async function JobsPage({
         <div>
           <h1 className="font-heading text-4xl">Openings</h1>
           <p className="mt-2 max-w-xl text-muted-foreground">
-            Ranked against your CV from live Kenya boards (BrighterMonday,
-            MyJobMag, Fuzu). Open the link and apply yourself.
+            Ranked against your CV from Kenya listings across BrighterMonday,
+            MyJobMag, Fuzu, LinkedIn, company career pages, and web search.
+            Open the link and apply yourself.
           </p>
         </div>
         <form action={scanAction}>

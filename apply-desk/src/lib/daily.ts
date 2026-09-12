@@ -38,7 +38,7 @@ export async function runDailyScan() {
   const current = readStore();
   const jobs = await collectJobs(current.settings.keywords);
   const min = current.settings.minScore;
-  const matched = jobs.filter((j) => j.score >= min).slice(0, 40);
+  const matched = jobs.filter((j) => j.score >= min).slice(0, 80);
 
   mutateStore((s) => {
     s.jobs = matched.slice(0, 80);

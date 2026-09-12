@@ -2,7 +2,7 @@
 
 Personal job desk for **Collins Kipkorir** — IT Assistant at Barsiele Sunrise Academy.
 
-Scans **live Kenya jobs** from BrighterMonday, MyJobMag, and Fuzu. You apply yourself from the posting link, then tap **I applied**. Gmail follow-up is wired later.
+Scans **live Kenya jobs** across BrighterMonday, MyJobMag, Fuzu, LinkedIn (public listings), company career pages, and web search. You apply yourself from the posting link.
 
 ## Run
 
