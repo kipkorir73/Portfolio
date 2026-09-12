@@ -21,10 +21,12 @@ export function JobsView() {
         <div>
           <h1 className="font-heading text-4xl">Openings</h1>
           <p className="mt-2 max-w-xl text-muted-foreground">
-            Ranked against your CV from Kenya listings posted in the last 7 days:
-            IT / ICT / helpdesk plus generalist office roles (data entry, admin,
-            receptionist, customer care) that you can do. Boards include Indeed,
-            Careerjet, BrighterMonday, MyJobMag, Fuzu, JobWebKenya, LinkedIn, and web search.
+            Ranked against your CV from job boards worldwide, posted in the last
+            7 days: IT / ICT / helpdesk plus generalist office roles. Sources
+            include RemoteOK, Remotive, Jobicy, Arbeitnow, Himalayas, Working
+            Nomads, We Work Remotely, Indeed (US, UK, CA, AU, IN, ZA, NG, KE,
+            AE, PH), Careerjet, LinkedIn, BrighterMonday, MyJobMag, Fuzu, and
+            web search. Kenya and remote listings are boosted.
           </p>
         </div>
         <Button type="button" disabled={scanning} onClick={() => void scan()}>

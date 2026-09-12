@@ -6,11 +6,11 @@ const POSITIVE: { re: RegExp; weight: number; label: string }[] = [
   { re: /\btechnician\b|\bhardware\b|\bperipherals?\b|\bprinter|\bbiometric/i, weight: 16, label: "hardware" },
   { re: /\bwindows\b|\blinux\b|\bactive directory\b|\bms office\b|\bexcel\b/i, weight: 14, label: "OS / office" },
   { re: /\bnetwork|\blan\b|\bwan\b|\bdhcp\b|\bfirewall\b|\bmikrotik\b|\bubiquiti\b|\bwifi\b/i, weight: 16, label: "networking" },
-  { re: /\bnairobi\b|\bkenya\b|\bremote\b/i, weight: 10, label: "location" },
+  { re: /\bnairobi\b|\bkenya\b|\bremote\b|\bworldwide\b|\banywhere\b|\bwork from home\b/i, weight: 10, label: "location" },
   { re: /\bschool\b|\bacademy\b|\beducation\b|\bcampus\b|\badmissions?\b|\bbursar\b/i, weight: 10, label: "education / admin" },
   { re: /\bl1\b|\bfirst[- ]line\b|\bticketing\b|\buser (account|support)/i, weight: 12, label: "L1" },
   {
-    re: /\b(office assistant|administrative assistant|admin assistant|data entry|data clerk|receptionist|front office|customer (care|service|support)|call cent(re|er)|records clerk|computer operator|office intern|graduate (trainee|intern)|entry[- ]level|no experience|filing clerk|secretary)\b/i,
+    re: /\b(office assistant|administrative assistant|admin assistant|data entry|data clerk|receptionist|front office|customer (care|service|support)|call cent(re|er)|records clerk|computer operator|office intern|graduate (trainee|intern)|entry[- ]level|no experience|filing clerk|secretary|virtual assistant|\bva\b|chat support|email support)\b/i,
     weight: 18,
     label: "generalist",
   },
@@ -47,7 +47,7 @@ export function scoreText(title: string, description: string, extraKeywords = ""
 export function guessChannel(url: string, applyEmail: string | null): Job["channel"] {
   if (applyEmail) return "email";
   if (/linkedin\.com/i.test(url)) return "linkedin";
-  if (/brightermonday|myjobmag|fuzu|indeed|glassdoor|careerjet|jobwebkenya|elevolt|corporate.?staffing/i.test(url)) {
+  if (/brightermonday|myjobmag|fuzu|indeed|glassdoor|careerjet|jobwebkenya|elevolt|remoteok|remotive|jobicy|arbeitnow|himalayas|weworkremotely|workingnomads|dice|reed\.co|seek\.com|naukri|monster|ziprecruiter|simplyhired|adzuna|jooble|bayt|pnet|careers24/i.test(url)) {
     return "job_board";
   }
   return "company_site";

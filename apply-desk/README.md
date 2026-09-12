@@ -2,7 +2,7 @@
 
 Personal job desk for **Collins Kipkorir** — IT Assistant at Barsiele Sunrise Academy.
 
-Scans **Kenya jobs from the last 7 days** across BrighterMonday, MyJobMag, Fuzu, LinkedIn, company career pages, and web search.
+Scans **worldwide jobs from the last 7 days** (remote APIs plus Indeed, Careerjet, LinkedIn, Kenya boards, and web search) for IT / helpdesk roles and generalist office work.
 
 ## Run
 
@@ -33,7 +33,7 @@ Optional env vars (Site settings → Environment variables):
 - `DESK_PASSWORD` — login password (defaults to `sunrise-desk`)
 - `CRON_SECRET` — if you later schedule `/api/cron/daily`
 
-After deploy, open the Netlify URL, log in, and run **Scan openings**. Scans cover Kenya IT roles and generalist office jobs from Indeed, Careerjet, BrighterMonday, MyJobMag, Fuzu, JobWebKenya, LinkedIn, and the web.
+After deploy, open the Netlify URL, log in, and run **Scan openings**. Scans cover worldwide IT and generalist office jobs from RemoteOK, Remotive, Jobicy, Arbeitnow, Himalayas, Working Nomads, We Work Remotely, Indeed (many countries), Careerjet, LinkedIn, BrighterMonday, MyJobMag, Fuzu, and the web.
 
 If a deploy is already live, push this repo and use **Trigger deploy** (Deploys → Trigger deploy) so Netlify rebuilds.
 
@@ -43,7 +43,7 @@ From Today or Openings, **Scan openings**. Or:
 
 `GET /api/cron/daily?secret=YOUR_CRON_SECRET`
 
-That only refreshes Kenya listings. It does not apply.
+That only refreshes listings. It does not apply.
 
 ## Gmail
 

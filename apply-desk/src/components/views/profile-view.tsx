@@ -20,7 +20,7 @@ export function ProfileView() {
     <>
       <h1 className="font-heading text-4xl">Profile</h1>
       <p className="mt-2 max-w-xl text-muted-foreground">
-        This is the CV the desk matches against Kenya IT roles and generalist
+        This is the CV the desk matches against worldwide IT roles and generalist
         office jobs. Upload a new PDF anytime.
       </p>
 

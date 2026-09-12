@@ -19,7 +19,7 @@ export function SettingsView() {
     <>
       <h1 className="font-heading text-4xl">Settings</h1>
       <p className="mt-2 max-w-xl text-muted-foreground">
-        The desk scans Kenya IT roles that match your CV, plus generalist office
+        The desk scans worldwide IT roles that match your CV, plus generalist office
         jobs you can do. Connect Gmail with an App Password — no Google Cloud site.
       </p>
 

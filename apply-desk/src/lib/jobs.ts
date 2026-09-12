@@ -11,7 +11,7 @@ const IT_HINT =
   /\b(ict|it support|it officer|it assistant|it specialist|it intern|it manager|help ?desk|service desk|sysadmin|systems? admin|network admin|network engineer|support engineer|technical support|desktop (support|technician)|it technician|ict technician|information technology|information systems|computer (operator|technician|teacher)|mis officer|lab technician|cabling|wifi|biometric)\b/i;
 
 const GENERALIST_HINT =
-  /\b(office assistant|administrative assistant|admin assistant|office admin|data entry|data clerk|receptionist|front office|customer (care|service|support)|call cent(re|er)|records clerk|filing|secretary|admissions|bursar|computer operator|graduate (trainee|intern)|entry[- ]level|no experience|operations assistant|office intern|clerk)\b/i;
+  /\b(office assistant|administrative assistant|admin assistant|office admin|data entry|data clerk|receptionist|front office|customer (care|service|support)|call cent(re|er)|records clerk|filing|secretary|admissions|bursar|computer operator|graduate (trainee|intern)|entry[- ]level|no experience|operations assistant|office intern|clerk|virtual assistant|\bva\b|chat support|email support)\b/i;
 
 const EXCLUDE_HINT =
   /\b(registered nurse|clinical officer|pharmacist|chef\b|heavy duty driver|truck driver|full[- ]stack|backend engineer|software engineer|data scientist|chartered accountant|advocate of the high court|welder|mason\b)\b/i;
@@ -145,7 +145,17 @@ function sourceFromUrl(url: string): { source: string; channel: Channel } {
   if (/fuzu\.com/i.test(url)) return { source: "Fuzu", channel: "job_board" };
   if (/indeed\./i.test(url)) return { source: "Indeed", channel: "job_board" };
   if (/careerjet/i.test(url)) return { source: "Careerjet", channel: "job_board" };
-  if (/jobwebkenya/i.test(url)) return { source: "JobWebKenya", channel: "job_board" };
+  if (/remoteok/i.test(url)) return { source: "RemoteOK", channel: "job_board" };
+  if (/remotive/i.test(url)) return { source: "Remotive", channel: "job_board" };
+  if (/jobicy/i.test(url)) return { source: "Jobicy", channel: "job_board" };
+  if (/arbeitnow/i.test(url)) return { source: "Arbeitnow", channel: "job_board" };
+  if (/himalayas/i.test(url)) return { source: "Himalayas", channel: "job_board" };
+  if (/weworkremotely/i.test(url)) return { source: "We Work Remotely", channel: "job_board" };
+  if (/workingnomads/i.test(url)) return { source: "Working Nomads", channel: "job_board" };
+  if (/dice\.com/i.test(url)) return { source: "Dice", channel: "job_board" };
+  if (/reed\.co/i.test(url)) return { source: "Reed", channel: "job_board" };
+  if (/adzuna/i.test(url)) return { source: "Adzuna", channel: "job_board" };
+  if (/jooble/i.test(url)) return { source: "Jooble", channel: "job_board" };
   if (/greenhouse|lever\.co|workable|smartrecruiters|recruitee|ashbyhq/i.test(url)) {
     return { source: "Company ATS", channel: "company_site" };
   }
@@ -153,28 +163,48 @@ function sourceFromUrl(url: string): { source: string; channel: Channel } {
   return { source: guessChannel(url, null) === "job_board" ? "Web" : "Web", channel: guessChannel(url, null) };
 }
 
-function isKenyaJob(job: Pick<Job, "location" | "url" | "source" | "description" | "title">) {
-  const blob = `${job.title} ${job.location} ${job.url} ${job.source} ${job.description}`;
-  if (
-    /brightermonday\.co\.ke|myjobmag\.co\.ke|fuzu\.com\/kenya|ke\.indeed|indeed\.[^/]+\/.*kenya|careerjet\.co\.ke|jobwebkenya|linkedin\.com\/jobs/i.test(
-      job.url,
-    )
-  ) {
-    return true;
-  }
-  return KE_PLACE.test(blob);
+function regionTag(location: string, url: string) {
+  const blob = `${location} ${url}`;
+  if (KE_PLACE.test(blob)) return "Kenya";
+  if (/remote|anywhere|worldwide|work from home|distributed/i.test(blob)) return "Remote";
+  const first = location.split(/[,|/]/)[0]?.trim();
+  return first ? first.slice(0, 28) : "Worldwide";
+}
+
+function rssLocation(url: string, title: string, description: string) {
+  const blob = `${url} ${title} ${description}`;
+  if (KE_PLACE.test(blob) || /ke\.indeed|careerjet\.co\.ke/i.test(url)) return "Kenya";
+  if (/remote|anywhere|worldwide|work from home/i.test(blob) || /[?&]l=Remote/i.test(url)) return "Remote";
+  if (/indeed\.co\.uk|reed\.co\.uk/i.test(url)) return "United Kingdom";
+  if (/au\.indeed|seek\.com\.au|careerjet\.com\.au/i.test(url)) return "Australia";
+  if (/ca\.indeed/i.test(url)) return "Canada";
+  if (/in\.indeed|naukri/i.test(url)) return "India";
+  if (/za\.indeed|pnet\.co\.za/i.test(url)) return "South Africa";
+  if (/ng\.indeed/i.test(url)) return "Nigeria";
+  if (/ph\.indeed/i.test(url)) return "Philippines";
+  if (/indeed\.ae|bayt/i.test(url)) return "UAE";
+  if (/ie\.indeed/i.test(url)) return "Ireland";
+  if (/de\.indeed/i.test(url)) return "Germany";
+  if (/indeed\.fr/i.test(url)) return "France";
+  return "Worldwide";
+}
+
+function isBlockedListing(job: Pick<Job, "title" | "description">) {
+  return /\b(US citizen|must be (located|based) in (the )?United States|active (security )?clearance|NATO secret)\b/i.test(
+    `${job.title} ${job.description}`,
+  );
 }
 
 const FETCH_MS = 2200;
-const SCAN_BUDGET_MS = 6500;
+const SCAN_BUDGET_MS = 8000;
 
 async function fetchText(url: string, ms: number) {
   try {
     const res = await fetch(url, {
       headers: {
         "user-agent": UA,
-        accept: "text/html,application/xhtml+xml,application/rss+xml,application/atom+xml,application/xml,text/xml,*/*",
-        "accept-language": "en-KE,en;q=0.9",
+        accept: "application/json,text/html,application/xhtml+xml,application/rss+xml,application/atom+xml,application/xml,text/xml,*/*",
+        "accept-language": "en-US,en;q=0.9",
       },
       cache: "no-store",
       redirect: "follow",
@@ -188,15 +218,16 @@ async function fetchText(url: string, ms: number) {
 }
 
 function makeJob(partial: Omit<Job, "id" | "channel" | "score" | "reasons" | "tags" | "applyEmail"> & { applyEmail?: string | null }, keywords: string): Job {
-  const { score, reasons } = scoreText(partial.title, `${partial.description} ${partial.location} Kenya`, keywords);
+  const { score, reasons } = scoreText(partial.title, `${partial.description} ${partial.location}`, keywords);
   const { source, channel } = sourceFromUrl(partial.url);
+  const region = regionTag(partial.location, partial.url);
   return {
     ...partial,
     id: idFrom(partial.url, partial.title),
     source: partial.source || source,
     channel,
     applyEmail: partial.applyEmail ?? null,
-    tags: ["Kenya", source, ...reasons].slice(0, 6),
+    tags: [region, source, ...reasons].slice(0, 6),
     score,
     reasons,
   };
@@ -367,7 +398,7 @@ function parseDuckDuckGo(html: string, scannedAt: string, keywords: string): Job
         {
           title: title.replace(/\s*[|\-–].{0,50}$/, "").trim() || title,
           company: host,
-          location: KE_PLACE.test(title) ? "Kenya" : "Kenya (search)",
+          location: KE_PLACE.test(title) ? "Kenya" : "Worldwide",
           source: sourceFromUrl(url).source,
           url,
           description: title,
@@ -413,7 +444,7 @@ function parseRss(xml: string, scannedAt: string, keywords: string, sourceHint: 
         {
           title,
           company,
-          location: "Kenya",
+          location: rssLocation(link, title, description),
           source: sourceFromUrl(link).source === "Web" ? sourceHint : sourceFromUrl(link).source,
           url: cleanUrl(link),
           description: description.slice(0, 420),
@@ -427,33 +458,143 @@ function parseRss(xml: string, scannedAt: string, keywords: string, sourceHint: 
   return jobs;
 }
 
-const PRIMARY_URLS = [
-  "https://ke.indeed.com/rss?q=IT+support&l=Kenya",
-  "https://ke.indeed.com/rss?q=ICT&l=Nairobi",
-  "https://ke.indeed.com/rss?q=help+desk&l=Kenya",
-  "https://ke.indeed.com/rss?q=office+assistant&l=Kenya",
-  "https://ke.indeed.com/rss?q=data+entry&l=Kenya",
-  "https://ke.indeed.com/rss?q=customer+service&l=Nairobi",
-  "https://www.careerjet.co.ke/search/rss?s=IT+support&l=Kenya",
-  "https://www.careerjet.co.ke/search/rss?s=office+assistant&l=Kenya",
-  "https://www.myjobmag.co.ke/jobs-by-field/it-telecoms",
-  "https://www.myjobmag.co.ke/jobs-by-field/admin",
-  "https://www.brightermonday.co.ke/jobs?q=IT+support",
-  "https://www.brightermonday.co.ke/jobs?q=office+assistant",
+function strField(obj: Record<string, unknown>, keys: string[]): string {
+  for (const key of keys) {
+    const value = obj[key];
+    if (typeof value === "string" && value.trim()) return value.trim();
+    if (typeof value === "number" && Number.isFinite(value)) return String(value);
+  }
+  const company = obj.company;
+  if (company && typeof company === "object" && !Array.isArray(company)) {
+    const nestedObj = company as Record<string, unknown>;
+    for (const key of ["name", "title"]) {
+      const value = nestedObj[key];
+      if (typeof value === "string" && value.trim()) return value.trim();
+    }
+  }
+  return "";
+}
+
+function jsonRows(data: unknown): Record<string, unknown>[] {
+  if (Array.isArray(data)) {
+    return data.filter((row): row is Record<string, unknown> => Boolean(row) && typeof row === "object");
+  }
+  if (!data || typeof data !== "object") return [];
+  const obj = data as Record<string, unknown>;
+  for (const key of ["jobs", "data", "results", "items", "positions"]) {
+    if (Array.isArray(obj[key])) {
+      return obj[key].filter((row): row is Record<string, unknown> => Boolean(row) && typeof row === "object");
+    }
+  }
+  return [];
+}
+
+function parseJsonBoard(url: string, raw: string, scannedAt: string, keywords: string): Job[] {
+  let data: unknown;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    return [];
+  }
+  const hint = sourceFromUrl(url).source;
+  const jobs: Job[] = [];
+  for (const row of jsonRows(data)) {
+    const title = strField(row, ["position", "title", "jobTitle", "name", "role"]);
+    const link = strField(row, ["url", "jobUrl", "apply_url", "application_url", "link", "canonical_url"]);
+    if (!title || !link.startsWith("http")) continue;
+    const company = strField(row, ["company", "company_name", "companyName", "employer"]) || hint;
+    const location =
+      strField(row, [
+        "location",
+        "candidate_required_location",
+        "jobGeo",
+        "job_location",
+        "region",
+      ]) || (row.remote === true ? "Remote" : "Worldwide");
+    const description = strip(
+      strField(row, ["description", "jobExcerpt", "excerpt", "content", "snippet"]) || title,
+    ).slice(0, 420);
+    const dateRaw = strField(row, ["date", "pubDate", "publication_date", "created_at", "published_at", "epoch"]);
+    let postedAt = scannedAt;
+    if (/^\d{10}$/.test(dateRaw)) postedAt = new Date(Number(dateRaw) * 1000).toISOString();
+    else if (/^\d{13}$/.test(dateRaw)) postedAt = new Date(Number(dateRaw)).toISOString();
+    else postedAt = parsePosted(dateRaw) || scannedAt;
+    if (!withinWeek(postedAt)) continue;
+    jobs.push(
+      makeJob(
+        {
+          title,
+          company,
+          location,
+          source: hint === "Web" ? "Worldwide board" : hint,
+          url: cleanUrl(link),
+          description,
+          postedAt,
+          scannedAt,
+        },
+        keywords,
+      ),
+    );
+  }
+  return jobs;
+}
+
+const JSON_URLS = [
+  "https://remoteok.com/api",
+  "https://remotive.com/api/remote-jobs?search=IT%20support",
+  "https://remotive.com/api/remote-jobs?category=customer-support",
+  "https://jobicy.com/api/v2/remote-jobs?count=50",
+  "https://www.arbeitnow.com/api/job-board-api",
+  "https://himalayas.app/jobs/api?limit=40",
+  "https://www.workingnomads.com/jobsapi.json",
 ];
 
-const SECONDARY_URLS = [
+const RSS_URLS = [
+  "https://www.indeed.com/rss?q=IT+support&l=Remote",
+  "https://www.indeed.co.uk/rss?q=IT+support&l=Remote",
+  "https://ca.indeed.com/rss?q=help+desk&l=Remote",
+  "https://au.indeed.com/rss?q=IT+support",
+  "https://in.indeed.com/rss?q=IT+support",
+  "https://za.indeed.com/rss?q=IT+support",
+  "https://ng.indeed.com/rss?q=IT+support",
+  "https://ke.indeed.com/rss?q=IT+support&l=Kenya",
+  "https://ke.indeed.com/rss?q=office+assistant&l=Kenya",
+  "https://www.indeed.ae/rss?q=IT+support",
+  "https://ph.indeed.com/rss?q=customer+service",
+  "https://www.careerjet.com/search/rss?s=IT+support&l=Remote",
+  "https://www.careerjet.co.uk/search/rss?s=help+desk&l=Remote",
+  "https://www.careerjet.co.ke/search/rss?s=IT+support&l=Kenya",
+  "https://weworkremotely.com/categories/remote-customer-support-jobs.rss",
+  "https://weworkremotely.com/categories/remote-programming-jobs.rss",
+  "https://remoteok.com/remote-jobs.rss",
+];
+
+const HTML_URLS = [
+  "https://www.brightermonday.co.ke/jobs?q=IT+support",
+  "https://www.brightermonday.co.ke/jobs?q=office+assistant",
+  "https://www.myjobmag.co.ke/jobs-by-field/it-telecoms",
+  "https://www.myjobmag.co.ke/jobs-by-field/admin",
   "https://www.fuzu.com/kenya/jobs?q=ICT",
-  "https://www.myjobmag.co.ke/search/jobs?q=data+entry",
-  "https://www.jobwebkenya.com/?s=IT+support",
-  "https://www.linkedin.com/jobs/search?keywords=IT%20Support&location=Kenya&f_TPR=r604800",
-  "https://html.duckduckgo.com/html/?q=IT%20support%20OR%20office%20assistant%20jobs%20Nairobi%20Kenya%20site%3Abrightermonday.co.ke",
+  "https://www.linkedin.com/jobs/search?keywords=IT%20Support&location=Worldwide&f_TPR=r604800&f_WT=2",
+  "https://html.duckduckgo.com/html/?q=remote%20IT%20support%20OR%20helpdesk%20OR%20office%20assistant%20jobs",
 ];
 
 function parsePage(url: string, html: string, scannedAt: string, keywords: string): Job[] {
   try {
-    if (html.includes("<rss") || html.includes("<feed") || /\/rss|\/feed|careerjet\.co\.ke\/search\/rss/i.test(url)) {
-      const hint = url.includes("indeed") ? "Indeed" : url.includes("careerjet") ? "Careerjet" : "RSS";
+    const trimmed = html.trim();
+    if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+      return parseJsonBoard(url, trimmed, scannedAt, keywords);
+    }
+    if (html.includes("<rss") || html.includes("<feed") || /\/rss|\/feed|\/search\/rss/i.test(url)) {
+      const hint = url.includes("indeed")
+        ? "Indeed"
+        : url.includes("careerjet")
+          ? "Careerjet"
+          : url.includes("weworkremotely")
+            ? "We Work Remotely"
+            : url.includes("remoteok")
+              ? "RemoteOK"
+              : "RSS";
       return parseRss(html, scannedAt, keywords, hint);
     }
     if (url.includes("brightermonday")) return parseBrighterMonday(html, scannedAt, keywords);
@@ -483,19 +624,20 @@ export async function collectJobs(keywords: string): Promise<Job[]> {
     });
   }
 
-  await runUrls(PRIMARY_URLS);
-  if (remaining() > 900) await runUrls(SECONDARY_URLS);
+  await runUrls(JSON_URLS);
+  if (remaining() > 900) await runUrls(RSS_URLS);
+  if (remaining() > 900) await runUrls(HTML_URLS);
 
   const byId = new Map<string, Job>();
   for (const job of found) {
     const blob = `${job.title} ${job.description}`;
     if (EXCLUDE_HINT.test(blob)) continue;
+    if (isBlockedListing(job)) continue;
     if (!IT_HINT.test(blob) && !GENERALIST_HINT.test(blob)) continue;
-    if (!isKenyaJob(job)) continue;
     if (!withinWeek(job.postedAt)) continue;
     const prev = byId.get(job.id);
     if (!prev || job.score > prev.score) byId.set(job.id, job);
   }
 
-  return [...byId.values()].sort((a, b) => b.score - a.score).slice(0, 120);
+  return [...byId.values()].sort((a, b) => b.score - a.score).slice(0, 150);
 }

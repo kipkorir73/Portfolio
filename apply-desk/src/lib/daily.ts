@@ -7,7 +7,7 @@ export async function runDailyScan() {
   const extra = [current.settings.keywords, current.profile?.cvText].filter(Boolean).join("\n");
   const jobs = await collectJobs(extra);
   const min = current.settings.minScore >= 20 ? 10 : current.settings.minScore;
-  const matched = jobs.filter((j) => j.score >= min).slice(0, 120);
+  const matched = jobs.filter((j) => j.score >= min).slice(0, 150);
   const keptPrevious = matched.length === 0 && current.jobs.length > 0;
 
   await mutateStore((s) => {
