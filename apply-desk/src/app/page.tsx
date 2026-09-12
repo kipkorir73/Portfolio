@@ -18,9 +18,9 @@ function fmt(iso: string | null) {
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ ran?: string }>;
+  searchParams: Promise<{ ran?: string; jobs?: string; applied?: string }>;
 }) {
-  const { ran } = await searchParams;
+  const { ran, jobs, applied } = await searchParams;
   const store = readStore();
   const stats = statsFrom(store);
   const recent = store.applications.slice(0, 5);
@@ -43,8 +43,9 @@ export default async function HomePage({
 
       {ran ? (
         <p className="mt-4 rounded-md border bg-card px-3 py-2 text-sm">
-          Scan finished. Email-fit roles were applied (mock send). LinkedIn and
-          careers-page jobs are waiting on you.
+          Scan finished. {jobs ?? "0"} matching openings stored. {applied ?? "0"}{" "}
+          email applications logged (mock send). LinkedIn and careers-page jobs
+          stay under Need you.
         </p>
       ) : null}
 

@@ -10,7 +10,12 @@ function todayKey(iso: string) {
 export function statsFrom(store: ReturnType<typeof readStore>) {
   const apps = store.applications;
   const today = new Date().toISOString().slice(0, 10);
-  const appliedToday = apps.filter((a) => a.appliedAt.slice(0, 10) === today);
+  const appliedToday = apps.filter(
+    (a) =>
+      a.appliedAt.slice(0, 10) === today &&
+      a.status !== "queued" &&
+      a.status !== "needs_you",
+  );
   const byChannel = {
     email: apps.filter((a) => a.channel === "email" && a.status !== "queued").length,
     job_board: apps.filter((a) => a.channel === "job_board" && a.status !== "needs_you" && a.status !== "queued").length,

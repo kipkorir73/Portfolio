@@ -30,8 +30,8 @@ export async function logoutAction() {
 
 export async function scanAction() {
   await requireUser();
-  await runDailyScan({ apply: true });
-  redirect("/?ran=1");
+  const result = await runDailyScan({ apply: true });
+  redirect(`/?ran=1&jobs=${result.jobs}&applied=${result.applied}`);
 }
 
 export async function connectEmailAction() {
