@@ -1,4 +1,4 @@
-import { connectEmailAction, readMessageAction, syncInboxAction } from "@/app/actions";
+import { readMessageAction } from "@/app/actions";
 import { Shell } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,54 +7,28 @@ import { readStore } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
-export default async function InboxPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ connected?: string; synced?: string }>;
-}) {
-  const q = await searchParams;
+export default async function InboxPage() {
   const store = readStore();
   const { settings, inbox } = store;
 
   return (
     <Shell current="/inbox">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="font-heading text-4xl">Inbox</h1>
-          <p className="mt-2 max-w-xl text-muted-foreground">
-            Connect {PROFILE.email} to file recruiter replies against applications.
-            This preview uses a simulated mailbox. Real Gmail needs a Google Cloud
-            OAuth client or an app password in SMTP settings — not a scrape of
-            LinkedIn messages.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          {settings.emailConnected ? (
-            <form action={syncInboxAction}>
-              <Button type="submit">Sync replies</Button>
-            </form>
-          ) : (
-            <form action={connectEmailAction}>
-              <Button type="submit">Connect {PROFILE.email}</Button>
-            </form>
-          )}
-        </div>
-      </div>
-      {q.connected ? (
-        <p className="mt-4 text-sm">Connected in demo mode. Sync to pull replies.</p>
-      ) : null}
-      {q.synced ? (
-        <p className="mt-4 text-sm">Inbox synced. New replies are filed on applications.</p>
-      ) : null}
+      <h1 className="font-heading text-4xl">Inbox</h1>
+      <p className="mt-2 max-w-xl text-muted-foreground">
+        Follow-up lives here. When you are ready, give the desk access to{" "}
+        {PROFILE.email} so replies, interviews, and rejections file against jobs
+        you marked as applied. Nothing is connected yet.
+      </p>
 
       {!settings.emailConnected ? (
         <p className="mt-10 rounded-xl border bg-card p-6 text-muted-foreground">
-          Email is disconnected. Connect to see replies, interviews, and
-          rejections next to the jobs you applied to.
+          Gmail is waiting on you. Apply from Openings first. Then we can wire
+          this mailbox to watch for recruiter replies — no demo connect, no
+          fake sync.
         </p>
       ) : inbox.length === 0 ? (
         <p className="mt-10 text-muted-foreground">
-          Connected, but no messages yet. Apply by email, then sync.
+          Connected, but no messages yet.
         </p>
       ) : (
         <ul className="mt-8 space-y-4">

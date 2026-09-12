@@ -20,8 +20,8 @@ export default async function SettingsPage({
     <Shell current="/settings">
       <h1 className="font-heading text-4xl">Settings</h1>
       <p className="mt-2 max-w-xl text-muted-foreground">
-        Profile is loaded from your current CV. Daily email applies stay inside
-        the cap. Anything without an apply-to address is queued for you.
+        The desk scans and lists jobs. It does not send applications. Gmail is
+        for follow-up after you apply yourself.
       </p>
       {saved ? <p className="mt-4 text-sm">Saved.</p> : null}
 
@@ -52,25 +52,10 @@ export default async function SettingsPage({
       </section>
 
       <form action={saveSettingsAction} className="mt-6 space-y-4 rounded-xl border bg-card p-5">
-        <h2 className="font-heading text-2xl">Daily run</h2>
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            name="autoApplyEmail"
-            defaultChecked={settings.autoApplyEmail}
-            className="size-4"
-          />
-          Auto-send email applications for high-match jobs with an address
-        </label>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="dailyCap">Daily email cap</Label>
-            <Input id="dailyCap" name="dailyCap" type="number" min={1} max={20} defaultValue={settings.dailyCap} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="minScore">Minimum match score</Label>
-            <Input id="minScore" name="minScore" type="number" min={0} max={99} defaultValue={settings.minScore} />
-          </div>
+        <h2 className="font-heading text-2xl">Scan</h2>
+        <div className="space-y-2">
+          <Label htmlFor="minScore">Minimum match score</Label>
+          <Input id="minScore" name="minScore" type="number" min={0} max={99} defaultValue={settings.minScore} />
         </div>
         <div className="space-y-2">
           <Label htmlFor="keywords">Keywords</Label>

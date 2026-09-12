@@ -19,9 +19,9 @@ export default async function LoginPage({
       </p>
       <h1 className="font-heading mt-2 text-5xl leading-none">Apply Desk</h1>
       <p className="mt-4 text-muted-foreground">
-        Sign in to scan roles that fit {PROFILE.name}’s IT support profile, send
-        email applications, and file replies. LinkedIn and company portals still
-        need you — the desk will queue them.
+        Scan roles that fit {PROFILE.name}’s IT support profile. You apply on
+        the posting. After that, Gmail can follow up on replies — grant access
+        when you are ready.
       </p>
       <form action={loginAction} className="mt-8 space-y-4 rounded-xl border bg-card p-5">
         {error ? (

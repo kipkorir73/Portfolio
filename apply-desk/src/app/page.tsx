@@ -15,69 +15,80 @@ function fmt(iso: string | null) {
   return new Date(iso).toLocaleString("en-KE", { dateStyle: "medium", timeStyle: "short" });
 }
 
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ ran?: string; jobs?: string; applied?: string }>;
-}) {
-  const { ran, jobs, applied } = await searchParams;
+export default async function HomePage() {
   const store = readStore();
   const stats = statsFrom(store);
   const recent = store.applications.slice(0, 5);
   const unread = store.inbox.filter((m) => m.unread).slice(0, 3);
+  const topJobs = store.jobs.slice(0, 4);
 
   return (
     <Shell current="/">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm text-muted-foreground">Good — you are signed in as</p>
+          <p className="text-sm text-muted-foreground">Signed in as</p>
           <h1 className="font-heading text-4xl sm:text-5xl">{PROFILE.name}</h1>
-          <p className="mt-2 max-w-xl text-muted-foreground">{PROFILE.title}</p>
+          <p className="mt-2 max-w-xl text-muted-foreground">
+            Scan matching roles, open the link, apply yourself. The desk only
+            logs what you mark. Gmail follow-up comes after you grant access.
+          </p>
         </div>
         <form action={scanAction}>
           <Button type="submit" size="lg">
-            Run today&apos;s scan &amp; apply
+            Scan openings
           </Button>
         </form>
       </div>
 
-      {ran ? (
-        <p className="mt-4 rounded-md border bg-card px-3 py-2 text-sm">
-          Scan finished. {jobs ?? "0"} matching openings stored. {applied ?? "0"}{" "}
-          email applications logged (mock send). LinkedIn and careers-page jobs
-          stay under Need you.
-        </p>
-      ) : null}
-
       <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Applied (sent)" value={stats.totalApplied} href="/applications" />
+        <Stat label="Openings" value={stats.openRoles} href="/jobs" />
+        <Stat label="You applied" value={stats.totalApplied} href="/applications" />
         <Stat label="Applied today" value={stats.appliedToday} href="/applications" />
-        <Stat label="Need you" value={stats.needsYou} href="/applications" />
         <Stat label="Replies" value={stats.replies} detail={`${stats.unread} unread`} href="/inbox" />
       </section>
 
-      <section className="mt-6 grid gap-3 sm:grid-cols-4">
-        <Channel label="Email" value={stats.byChannel.email} />
-        <Channel label="Job boards" value={stats.byChannel.job_board} />
-        <Channel label="Company sites" value={stats.byChannel.company_site} />
-        <Channel label="LinkedIn (you)" value={stats.byChannel.linkedin} />
-      </section>
-
       <p className="mt-4 text-xs text-muted-foreground">
-        Last scan: {fmt(stats.lastScanAt)}. Email:{" "}
-        {stats.emailConnected ? "connected (demo inbox)" : "not connected yet"}
-        . This desk does not log into LinkedIn or fill Workday/Greenhouse for you.
+        Last scan: {fmt(stats.lastScanAt)}. Gmail:{" "}
+        {stats.emailConnected ? "connected" : "not connected yet — add access when you are ready to follow up"}
+        .
       </p>
 
       <div className="mt-10 grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle className="font-heading text-2xl font-normal">Recent applications</CardTitle>
+            <CardTitle className="font-heading text-2xl font-normal">Waiting for you</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {topJobs.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No openings yet. Scan to pull roles that fit the CV.
+              </p>
+            ) : (
+              topJobs.map((job) => (
+                <div key={job.id} className="flex items-start justify-between gap-3 border-b border-border pb-3 last:border-0">
+                  <div>
+                    <p className="font-medium">{job.title}</p>
+                    <p className="text-sm text-muted-foreground">{job.company}</p>
+                  </div>
+                  <a className="text-sm underline shrink-0" href={job.url} target="_blank" rel="noreferrer">
+                    Apply
+                  </a>
+                </div>
+              ))
+            )}
+            <Link href="/jobs" className="inline-block text-sm underline">
+              All openings
+            </Link>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-heading text-2xl font-normal">Your applications</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {recent.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Nothing sent yet. Run today&apos;s scan.
+                Empty until you apply on a posting and tap I applied.
               </p>
             ) : (
               recent.map((a) => (
@@ -87,37 +98,27 @@ export default async function HomePage({
                     <p className="text-sm text-muted-foreground">{a.company}</p>
                   </div>
                   <Badge variant={a.status === "replied" || a.status === "interview" ? "default" : "secondary"}>
-                    {a.channel} · {a.status}
+                    {a.status}
                   </Badge>
                 </div>
               ))
             )}
-            <Link href="/applications" className="inline-block text-sm underline">
-              All applications
-            </Link>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-heading text-2xl font-normal">Inbox</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {unread.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No unread replies. Connect email on the Inbox page, then sync.
-              </p>
-            ) : (
-              unread.map((m) => (
-                <div key={m.id} className="border-b border-border pb-3 last:border-0">
-                  <p className="font-medium">{m.subject}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {m.from} · {m.kind}
+            {unread.length > 0 ? (
+              <div className="pt-2">
+                <p className="text-xs text-muted-foreground uppercase">Unread follow-up</p>
+                {unread.map((m) => (
+                  <p key={m.id} className="text-sm">
+                    {m.subject}
                   </p>
-                </div>
-              ))
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Replies will land here after Gmail is connected.
+              </p>
             )}
             <Link href="/inbox" className="inline-block text-sm underline">
-              Open inbox
+              Inbox
             </Link>
           </CardContent>
         </Card>
@@ -143,14 +144,5 @@ function Stat({
       <p className="font-heading mt-1 text-4xl">{value}</p>
       {detail ? <p className="text-xs text-muted-foreground">{detail}</p> : null}
     </Link>
-  );
-}
-
-function Channel({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-lg border bg-card px-3 py-2">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="text-lg font-medium">{value}</p>
-    </div>
   );
 }

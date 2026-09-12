@@ -6,6 +6,7 @@ import { clearSession, requireUser, setSession } from "@/lib/session";
 import {
   connectEmail,
   markApplication,
+  markJobApplied,
   markRead,
   runDailyScan,
   syncInbox,
@@ -30,8 +31,14 @@ export async function logoutAction() {
 
 export async function scanAction() {
   await requireUser();
-  const result = await runDailyScan({ apply: true });
-  redirect(`/?ran=1&jobs=${result.jobs}&applied=${result.applied}`);
+  const result = await runDailyScan();
+  redirect(`/jobs?ran=1&jobs=${result.jobs}`);
+}
+
+export async function markAppliedAction(formData: FormData) {
+  await requireUser();
+  markJobApplied(String(formData.get("jobId") ?? ""));
+  redirect("/jobs?logged=1");
 }
 
 export async function connectEmailAction() {
@@ -63,8 +70,7 @@ export async function readMessageAction(formData: FormData) {
 export async function saveSettingsAction(formData: FormData) {
   await requireUser();
   mutateStore((s) => {
-    s.settings.autoApplyEmail = formData.get("autoApplyEmail") === "on";
-    s.settings.dailyCap = Math.max(1, Number(formData.get("dailyCap") ?? 6));
+    s.settings.autoApplyEmail = false;
     s.settings.minScore = Math.max(0, Number(formData.get("minScore") ?? 40));
     s.settings.keywords = String(formData.get("keywords") ?? s.settings.keywords);
   });

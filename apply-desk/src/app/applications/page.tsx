@@ -14,9 +14,9 @@ export default function ApplicationsPage() {
     <Shell current="/applications">
       <h1 className="font-heading text-4xl">Applied</h1>
       <p className="mt-2 max-w-2xl text-muted-foreground">
-        Email channel means the desk drafted and logged an application to the
-        hiring address. LinkedIn and company sites stay in Need you until you
-        submit and mark them sent.
+        Roles you applied to yourself. Use Mark sent if you already submitted,
+        or Interview / the posting link for follow-up. Gmail will attach replies
+        here once you grant access.
       </p>
       {apps.length === 0 ? (
         <p className="mt-10 text-muted-foreground">No applications yet.</p>

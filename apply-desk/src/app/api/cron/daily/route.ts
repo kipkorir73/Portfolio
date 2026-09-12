@@ -10,6 +10,6 @@ export async function GET(request: Request) {
   if (!ok) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const result = await runDailyScan({ apply: true });
+  const result = await runDailyScan();
   return NextResponse.json({ ok: true, ...result });
 }
