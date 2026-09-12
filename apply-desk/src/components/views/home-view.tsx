@@ -1,25 +1,24 @@
+"use client";
+
 import Link from "next/link";
-import { scanAction } from "@/app/actions";
-import { Shell } from "@/components/shell";
+import { useRouter } from "next/navigation";
+import { useDesk } from "@/components/desk-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { statsFrom } from "@/lib/daily";
-import { PROFILE } from "@/lib/profile";
 import { formatWhen } from "@/lib/dates";
-import { readStore } from "@/lib/store";
+import { PROFILE } from "@/lib/profile";
 
-export const dynamic = "force-dynamic";
-
-export default async function HomePage() {
-  const store = readStore();
-  const stats = statsFrom(store);
+export function HomeView() {
+  const { store, stats, scanning, scan } = useDesk();
+  const router = useRouter();
+  if (!store || !stats) return null;
   const recent = store.applications.slice(0, 5);
   const unread = store.inbox.filter((m) => m.unread).slice(0, 3);
   const topJobs = store.jobs.slice(0, 4);
 
   return (
-    <Shell current="/">
+    <>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm text-muted-foreground">Signed in as</p>
@@ -29,11 +28,18 @@ export default async function HomePage() {
             logs what you mark. Gmail follow-up comes after you grant access.
           </p>
         </div>
-        <form action={scanAction}>
-          <Button type="submit" size="lg">
-            Scan openings
-          </Button>
-        </form>
+        <Button
+          type="button"
+          size="lg"
+          disabled={scanning}
+          onClick={() => {
+            void scan()
+              .then(() => router.push("/jobs"))
+              .catch(() => {});
+          }}
+        >
+          {scanning ? "Scanning…" : "Scan openings"}
+        </Button>
       </div>
 
       <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -119,7 +125,7 @@ export default async function HomePage() {
           </CardContent>
         </Card>
       </div>
-    </Shell>
+    </>
   );
 }
 

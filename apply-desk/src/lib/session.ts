@@ -2,7 +2,12 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { LOGIN_EMAIL } from "./profile";
 
-const COOKIE = "apply_desk";
+export const SESSION_COOKIE = "apply_desk";
+const COOKIE = SESSION_COOKIE;
+
+export function hasSession(value: string | undefined) {
+  return value === LOGIN_EMAIL;
+}
 
 export async function isLoggedIn() {
   const jar = await cookies();

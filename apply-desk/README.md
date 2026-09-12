@@ -33,7 +33,7 @@ Optional env vars (Site settings → Environment variables):
 - `DESK_PASSWORD` — login password (defaults to `sunrise-desk`)
 - `CRON_SECRET` — if you later schedule `/api/cron/daily`
 
-After deploy, open the Netlify URL, log in, and run **Scan openings**. Login uses a normal form POST (`/api/login`) so it works on Netlify. Scan results are stored on the serverless disk (`/tmp`), so they can reset when the function goes cold. That is expected on Netlify without a database.
+After deploy, open the Netlify URL, log in, and run **Scan openings**. Scan is capped at about 6 seconds so Netlify does not time out. Buttons (I applied, status, save) use a small JSON API instead of a full page reload. Scan results live in `/tmp` and can reset when the function goes cold.
 
 If a deploy is already live, push this repo and use **Trigger deploy** (Deploys → Trigger deploy) so Netlify rebuilds.
 

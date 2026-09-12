@@ -19,3 +19,13 @@ export function formatDay(iso: string | null | undefined) {
     return d.toISOString().slice(0, 10);
   }
 }
+
+export function postedLabel(iso: string) {
+  const age = Date.now() - Date.parse(iso);
+  if (Number.isNaN(age) || age < 0) return "Posted this week";
+  const hours = Math.floor(age / (60 * 60 * 1000));
+  if (hours < 24) return hours <= 1 ? "Posted today" : `Posted ${hours} hours ago`;
+  const days = Math.floor(hours / 24);
+  if (days === 1) return "Posted yesterday";
+  return `Posted ${days} days ago`;
+}

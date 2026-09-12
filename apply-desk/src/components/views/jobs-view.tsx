@@ -1,26 +1,22 @@
-import { markAppliedAction, scanAction } from "@/app/actions";
-import { Shell } from "@/components/shell";
+"use client";
+
+import { useState } from "react";
+import { useDesk } from "@/components/desk-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { readStore } from "@/lib/store";
-import { postedLabel } from "@/lib/jobs";
+import { postedLabel } from "@/lib/dates";
 
-export const dynamic = "force-dynamic";
-
-export default async function JobsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ ran?: string; jobs?: string; logged?: string }>;
-}) {
-  const q = await searchParams;
-  const store = readStore();
+export function JobsView() {
+  const { store, scanning, scan, applied } = useDesk();
+  const [logging, setLogging] = useState<string | null>(null);
+  if (!store) return null;
   const jobs = store.jobs;
-  const applied = new Set(
+  const already = new Set(
     store.applications.filter((a) => a.status !== "queued").map((a) => a.jobId),
   );
 
   return (
-    <Shell current="/jobs">
+    <>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="font-heading text-4xl">Openings</h1>
@@ -30,21 +26,10 @@ export default async function JobsPage({
             Older ads are dropped.
           </p>
         </div>
-        <form action={scanAction}>
-          <Button type="submit">Scan again</Button>
-        </form>
+        <Button type="button" disabled={scanning} onClick={() => void scan()}>
+          {scanning ? "Scanning…" : "Scan again"}
+        </Button>
       </div>
-      {q.ran ? (
-        <p className="mt-4 rounded-md border bg-card px-3 py-2 text-sm">
-          Scan finished. {q.jobs ?? "0"} matching openings. Nothing was sent —
-          use Apply on each posting.
-        </p>
-      ) : null}
-      {q.logged ? (
-        <p className="mt-4 rounded-md border bg-card px-3 py-2 text-sm">
-          Logged. When Gmail is connected, replies to that role can file here.
-        </p>
-      ) : null}
       {jobs.length === 0 ? (
         <p className="mt-10 text-muted-foreground">
           No openings stored yet. Scan from Today.
@@ -52,7 +37,7 @@ export default async function JobsPage({
       ) : (
         <ul className="mt-8 space-y-4">
           {jobs.map((job) => {
-            const done = applied.has(job.id);
+            const done = already.has(job.id);
             return (
               <li key={job.id} className="rounded-xl border bg-card p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
@@ -85,12 +70,17 @@ export default async function JobsPage({
                   {done ? (
                     <span className="text-sm text-muted-foreground">Logged as applied</span>
                   ) : (
-                    <form action={markAppliedAction}>
-                      <input type="hidden" name="jobId" value={job.id} />
-                      <Button type="submit" variant="outline">
-                        I applied
-                      </Button>
-                    </form>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={logging === job.id}
+                      onClick={() => {
+                        setLogging(job.id);
+                        void applied(job.id).finally(() => setLogging(null));
+                      }}
+                    >
+                      {logging === job.id ? "Saving…" : "I applied"}
+                    </Button>
                   )}
                 </div>
               </li>
@@ -98,6 +88,6 @@ export default async function JobsPage({
           })}
         </ul>
       )}
-    </Shell>
+    </>
   );
 }

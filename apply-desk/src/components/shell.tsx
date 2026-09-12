@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { PROFILE } from "@/lib/profile";
 import { Button } from "@/components/ui/button";
 
@@ -10,13 +13,8 @@ const LINKS = [
   { href: "/settings", label: "Settings" },
 ];
 
-export function Shell({
-  children,
-  current,
-}: {
-  children: React.ReactNode;
-  current: string;
-}) {
+export function Shell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname() || "/";
   return (
     <div className="min-h-full">
       <header className="sticky top-0 z-10 border-b border-border/80 bg-background/90 backdrop-blur">
@@ -29,8 +27,9 @@ export function Shell({
               <Link
                 key={l.href}
                 href={l.href}
+                prefetch
                 className={
-                  current === l.href
+                  pathname === l.href
                     ? "text-foreground"
                     : "text-muted-foreground hover:text-foreground"
                 }
@@ -55,7 +54,8 @@ export function Shell({
             <Link
               key={l.href}
               href={l.href}
-              className={current === l.href ? "text-foreground" : "text-muted-foreground"}
+              prefetch
+              className={pathname === l.href ? "text-foreground" : "text-muted-foreground"}
             >
               {l.label}
             </Link>

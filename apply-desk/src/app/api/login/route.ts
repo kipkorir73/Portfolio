@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { LOGIN_EMAIL, LOGIN_PASSWORD } from "@/lib/profile";
-
-const COOKIE = "apply_desk";
+import { SESSION_COOKIE } from "@/lib/session";
 
 export async function POST(request: NextRequest) {
   const form = await request.formData();
@@ -17,7 +16,7 @@ export async function POST(request: NextRequest) {
   }
 
   const res = NextResponse.redirect(new URL("/", request.url), 303);
-  res.cookies.set(COOKIE, LOGIN_EMAIL, {
+  res.cookies.set(SESSION_COOKIE, LOGIN_EMAIL, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",

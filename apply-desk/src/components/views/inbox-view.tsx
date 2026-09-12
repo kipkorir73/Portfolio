@@ -1,19 +1,20 @@
-import { readMessageAction } from "@/app/actions";
-import { Shell } from "@/components/shell";
+"use client";
+
+import { useState } from "react";
+import { useDesk } from "@/components/desk-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatWhen } from "@/lib/dates";
 import { PROFILE } from "@/lib/profile";
-import { readStore } from "@/lib/store";
 
-export const dynamic = "force-dynamic";
-
-export default async function InboxPage() {
-  const store = readStore();
+export function InboxView() {
+  const { store, markRead } = useDesk();
+  const [busy, setBusy] = useState<string | null>(null);
+  if (!store) return null;
   const { settings, inbox } = store;
 
   return (
-    <Shell current="/inbox">
+    <>
       <h1 className="font-heading text-4xl">Inbox</h1>
       <p className="mt-2 max-w-xl text-muted-foreground">
         Follow-up lives here. When you are ready, give the desk access to{" "}
@@ -28,9 +29,7 @@ export default async function InboxPage() {
           fake sync.
         </p>
       ) : inbox.length === 0 ? (
-        <p className="mt-10 text-muted-foreground">
-          Connected, but no messages yet.
-        </p>
+        <p className="mt-10 text-muted-foreground">Connected, but no messages yet.</p>
       ) : (
         <ul className="mt-8 space-y-4">
           {inbox.map((m) => (
@@ -41,22 +40,28 @@ export default async function InboxPage() {
               </div>
               <h2 className="mt-2 font-medium">{m.subject}</h2>
               <p className="text-sm text-muted-foreground">
-                {m.from} &lt;{m.fromEmail}&gt; ·{" "}
-                {formatWhen(m.receivedAt)}
+                {m.from} &lt;{m.fromEmail}&gt; · {formatWhen(m.receivedAt)}
               </p>
               <p className="mt-3 whitespace-pre-wrap text-sm">{m.body}</p>
               {m.unread ? (
-                <form action={readMessageAction} className="mt-3">
-                  <input type="hidden" name="id" value={m.id} />
-                  <Button size="sm" variant="outline" type="submit">
-                    Mark read
-                  </Button>
-                </form>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  type="button"
+                  className="mt-3"
+                  disabled={busy === m.id}
+                  onClick={() => {
+                    setBusy(m.id);
+                    void markRead(m.id).finally(() => setBusy(null));
+                  }}
+                >
+                  {busy === m.id ? "Saving…" : "Mark read"}
+                </Button>
               ) : null}
             </li>
           ))}
         </ul>
       )}
-    </Shell>
+    </>
   );
 }

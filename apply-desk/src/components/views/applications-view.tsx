@@ -1,18 +1,29 @@
-import { setStatusAction } from "@/app/actions";
-import { Shell } from "@/components/shell";
+"use client";
+
+import { useState } from "react";
+import { useDesk } from "@/components/desk-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDay } from "@/lib/dates";
-import { readStore } from "@/lib/store";
+import type { ApplicationStatus } from "@/lib/types";
 
-export const dynamic = "force-dynamic";
+export function ApplicationsView() {
+  const { store, setStatus } = useDesk();
+  const [busy, setBusy] = useState<string | null>(null);
+  if (!store) return null;
+  const apps = store.applications;
 
-const STATUSES = ["queued", "needs_you", "sent", "replied", "interview", "rejected"] as const;
+  async function update(id: string, status: ApplicationStatus) {
+    setBusy(`${id}:${status}`);
+    try {
+      await setStatus(id, status);
+    } finally {
+      setBusy(null);
+    }
+  }
 
-export default function ApplicationsPage() {
-  const apps = readStore().applications;
   return (
-    <Shell current="/applications">
+    <>
       <h1 className="font-heading text-4xl">Applied</h1>
       <p className="mt-2 max-w-2xl text-muted-foreground">
         Roles you applied to yourself. Use Mark sent if you already submitted,
@@ -47,26 +58,35 @@ export default function ApplicationsPage() {
                     <Badge variant="secondary">{a.channel}</Badge>
                   </td>
                   <td className="px-4 py-3">{a.status}</td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {formatDay(a.appliedAt)}
-                  </td>
+                  <td className="px-4 py-3 text-muted-foreground">{formatDay(a.appliedAt)}</td>
                   <td className="px-4 py-3">
-                    <form action={setStatusAction} className="flex flex-wrap gap-2">
-                      <input type="hidden" name="id" value={a.id} />
+                    <div className="flex flex-wrap gap-2">
                       {a.status !== "sent" ? (
-                        <Button name="status" value="sent" size="sm" variant="outline">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          type="button"
+                          disabled={busy === `${a.id}:sent`}
+                          onClick={() => void update(a.id, "sent")}
+                        >
                           Mark sent
                         </Button>
                       ) : null}
                       {a.status !== "interview" ? (
-                        <Button name="status" value="interview" size="sm" variant="outline">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          type="button"
+                          disabled={busy === `${a.id}:interview`}
+                          onClick={() => void update(a.id, "interview")}
+                        >
                           Interview
                         </Button>
                       ) : null}
                       <a className="text-xs underline self-center" href={a.url} target="_blank" rel="noreferrer">
                         Link
                       </a>
-                    </form>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -74,9 +94,6 @@ export default function ApplicationsPage() {
           </table>
         </div>
       )}
-      <p className="mt-4 hidden text-xs text-muted-foreground">
-        Statuses: {STATUSES.join(", ")}
-      </p>
-    </Shell>
+    </>
   );
 }

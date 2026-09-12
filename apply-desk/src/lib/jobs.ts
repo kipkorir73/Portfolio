@@ -10,16 +10,6 @@ const KE_PLACE =
 const IT_HINT =
   /\b(ict|it support|it officer|it assistant|it specialist|it manager|help ?desk|service desk|sysadmin|systems? admin|network admin|network engineer|support engineer|technical support|desktop (support|technician)|it technician|ict technician|information technology|information systems|infrastructure manager|noc support)\b/i;
 
-const TITLES = [
-  "IT Support",
-  "IT Assistant",
-  "ICT Officer",
-  "Help Desk",
-  "Systems Administrator",
-  "Desktop Technician",
-  "Network Administrator",
-];
-
 function idFrom(url: string, title: string) {
   const raw = `${url.split("?")[0]}|${title}`.toLowerCase();
   let h = 0;
@@ -79,16 +69,6 @@ function withinWeek(iso: string | null, now = Date.now()) {
 
 function toIso(date: Date) {
   return date.toISOString();
-}
-
-export function postedLabel(iso: string) {
-  const age = Date.now() - Date.parse(iso);
-  if (Number.isNaN(age) || age < 0) return "Posted this week";
-  const hours = Math.floor(age / (60 * 60 * 1000));
-  if (hours < 24) return hours <= 1 ? "Posted today" : `Posted ${hours} hours ago`;
-  const days = Math.floor(hours / 24);
-  if (days === 1) return "Posted yesterday";
-  return `Posted ${days} days ago`;
 }
 
 function parsePosted(text: string, now = Date.now()): string | null {
@@ -174,18 +154,26 @@ function isKenyaJob(job: Pick<Job, "location" | "url" | "source" | "description"
   return KE_PLACE.test(blob);
 }
 
-async function fetchText(url: string) {
-  const res = await fetch(url, {
-    headers: {
-      "user-agent": UA,
-      accept: "text/html,application/xhtml+xml",
-      "accept-language": "en-US,en;q=0.9",
-    },
-    cache: "no-store",
-    signal: AbortSignal.timeout(12000),
-  });
-  if (!res.ok) throw new Error(`${url} ${res.status}`);
-  return res.text();
+const FETCH_MS = 2200;
+const SCAN_BUDGET_MS = 6500;
+
+async function fetchText(url: string, ms: number) {
+  try {
+    const res = await fetch(url, {
+      headers: {
+        "user-agent": UA,
+        accept: "text/html,application/xhtml+xml",
+        "accept-language": "en-US,en;q=0.9",
+      },
+      cache: "no-store",
+      redirect: "follow",
+      signal: AbortSignal.timeout(ms),
+    });
+    if (!res.ok) return null;
+    return await res.text();
+  } catch {
+    return null;
+  }
 }
 
 function makeJob(partial: Omit<Job, "id" | "channel" | "score" | "reasons" | "tags" | "applyEmail"> & { applyEmail?: string | null }, keywords: string): Job {
@@ -378,56 +366,51 @@ function parseDuckDuckGo(html: string, scannedAt: string, keywords: string): Job
   return jobs;
 }
 
-const BOARD_URLS = [
-  "https://www.brightermonday.co.ke/jobs?q=ICT",
+const PRIMARY_URLS = [
   "https://www.brightermonday.co.ke/jobs?q=IT+support",
-  "https://www.brightermonday.co.ke/jobs?q=IT+assistant",
-  "https://www.brightermonday.co.ke/jobs?q=helpdesk",
-  "https://www.brightermonday.co.ke/jobs?q=systems+administrator",
-  "https://www.myjobmag.co.ke/search/jobs?q=IT+support",
-  "https://www.myjobmag.co.ke/search/jobs?q=IT+assistant",
-  "https://www.myjobmag.co.ke/search/jobs?q=ICT",
-  "https://www.myjobmag.co.ke/search/jobs?q=helpdesk",
+  "https://www.brightermonday.co.ke/jobs?q=ICT",
   "https://www.myjobmag.co.ke/jobs-by-field/it-telecoms",
-  "https://www.myjobmag.co.ke/jobs-by-date/this-week",
-  "https://www.myjobmag.co.ke/jobs-by-date/today",
+  "https://www.myjobmag.co.ke/search/jobs?q=IT+support",
   "https://www.fuzu.com/kenya/jobs?q=ICT",
 ];
 
-function linkedInUrls() {
-  return TITLES.map(
-    (title) =>
-      `https://www.linkedin.com/jobs/search?keywords=${encodeURIComponent(title)}&location=${encodeURIComponent("Kenya")}&f_TPR=r604800`,
-  );
-}
+const SECONDARY_URLS = [
+  "https://www.linkedin.com/jobs/search?keywords=IT%20Support&location=Kenya&f_TPR=r604800",
+  "https://www.linkedin.com/jobs/search?keywords=ICT%20Officer&location=Kenya&f_TPR=r604800",
+  "https://html.duckduckgo.com/html/?q=IT%20support%20jobs%20Nairobi%20Kenya%20site%3Abrightermonday.co.ke",
+];
 
-function ddgUrls() {
-  return TITLES.map(
-    (title) =>
-      `https://html.duckduckgo.com/html/?q=${encodeURIComponent(`${title} jobs Nairobi Kenya (LinkedIn OR careers OR greenhouse)`)}`,
-  );
+function parsePage(url: string, html: string, scannedAt: string, keywords: string): Job[] {
+  try {
+    if (url.includes("brightermonday")) return parseBrighterMonday(html, scannedAt, keywords);
+    if (url.includes("myjobmag")) return parseMyJobMag(html, scannedAt, keywords);
+    if (url.includes("fuzu")) return parseFuzu(html, scannedAt, keywords);
+    if (url.includes("linkedin.com/jobs")) return parseLinkedIn(html, scannedAt, keywords);
+    if (url.includes("duckduckgo.com")) return parseDuckDuckGo(html, scannedAt, keywords);
+  } catch {
+    return [];
+  }
+  return [];
 }
 
 export async function collectJobs(keywords: string): Promise<Job[]> {
   const scannedAt = new Date().toISOString();
   const found: Job[] = [];
-  const urls = [...BOARD_URLS, ...linkedInUrls(), ...ddgUrls()];
-  const pages = await Promise.allSettled(urls.map((url) => fetchText(url)));
+  const started = Date.now();
+  const remaining = () => SCAN_BUDGET_MS - (Date.now() - started);
 
-  pages.forEach((result, i) => {
-    if (result.status !== "fulfilled") return;
-    const url = urls[i];
-    const html = result.value;
-    try {
-      if (url.includes("brightermonday")) found.push(...parseBrighterMonday(html, scannedAt, keywords));
-      else if (url.includes("myjobmag")) found.push(...parseMyJobMag(html, scannedAt, keywords));
-      else if (url.includes("fuzu")) found.push(...parseFuzu(html, scannedAt, keywords));
-      else if (url.includes("linkedin.com/jobs")) found.push(...parseLinkedIn(html, scannedAt, keywords));
-      else if (url.includes("duckduckgo.com")) found.push(...parseDuckDuckGo(html, scannedAt, keywords));
-    } catch {
-      // one source failing should not kill the scan
-    }
-  });
+  async function runUrls(urls: string[]) {
+    const ms = Math.min(FETCH_MS, Math.max(0, remaining() - 200));
+    if (ms < 400) return;
+    const pages = await Promise.all(urls.map((url) => fetchText(url, ms)));
+    pages.forEach((html, i) => {
+      if (!html) return;
+      found.push(...parsePage(urls[i], html, scannedAt, keywords));
+    });
+  }
+
+  await runUrls(PRIMARY_URLS);
+  if (remaining() > 900) await runUrls(SECONDARY_URLS);
 
   const byId = new Map<string, Job>();
   for (const job of found) {

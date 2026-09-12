@@ -3,50 +3,23 @@ import { collectJobs } from "./jobs";
 import { mutateStore, readStore } from "./store";
 import type { Application, InboxMessage } from "./types";
 
-export function statsFrom(store: ReturnType<typeof readStore>) {
-  const apps = store.applications;
-  const today = new Date().toISOString().slice(0, 10);
-  const appliedToday = apps.filter(
-    (a) =>
-      a.appliedAt.slice(0, 10) === today &&
-      a.status !== "queued" &&
-      a.status !== "needs_you",
-  );
-  const byChannel = {
-    email: apps.filter((a) => a.channel === "email" && a.status !== "queued").length,
-    job_board: apps.filter((a) => a.channel === "job_board" && a.status !== "needs_you" && a.status !== "queued").length,
-    company_site: apps.filter((a) => a.channel === "company_site" && a.status !== "needs_you" && a.status !== "queued").length,
-    linkedin: apps.filter((a) => a.channel === "linkedin").length,
-  };
-  const replies = store.inbox.filter((m) => m.kind !== "other");
-  return {
-    totalApplied: apps.filter((a) => a.status !== "queued" && a.status !== "needs_you").length,
-    openRoles: store.jobs.filter((j) => !apps.some((a) => a.jobId === j.id && a.status !== "queued")).length,
-    appliedToday: appliedToday.length,
-    replies: replies.length,
-    unread: store.inbox.filter((m) => m.unread).length,
-    interviews:
-      apps.filter((a) => a.status === "interview").length +
-      store.inbox.filter((m) => m.kind === "interview").length,
-    byChannel,
-    emailConnected: store.settings.emailConnected,
-    lastScanAt: store.settings.lastScanAt,
-  };
-}
-
 export async function runDailyScan() {
   const current = readStore();
   const jobs = await collectJobs(current.settings.keywords);
   const min = current.settings.minScore;
   const matched = jobs.filter((j) => j.score >= min).slice(0, 80);
+  const keptPrevious = matched.length === 0 && current.jobs.length > 0;
 
   mutateStore((s) => {
-    s.jobs = matched.slice(0, 80);
+    if (matched.length > 0) s.jobs = matched;
     s.settings.lastScanAt = new Date().toISOString();
     s.settings.autoApplyEmail = false;
   });
 
-  return { jobs: matched.length };
+  return {
+    jobs: matched.length > 0 ? matched.length : current.jobs.length,
+    keptPrevious,
+  };
 }
 
 export function markJobApplied(jobId: string) {

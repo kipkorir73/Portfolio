@@ -1,29 +1,26 @@
-import { saveSettingsAction } from "@/app/actions";
-import { Shell } from "@/components/shell";
+"use client";
+
+import { useState } from "react";
+import { useDesk } from "@/components/desk-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PROFILE } from "@/lib/profile";
-import { readStore } from "@/lib/store";
 
-export const dynamic = "force-dynamic";
+export function SettingsView() {
+  const { store, saveSettings } = useDesk();
+  const [saving, setSaving] = useState(false);
+  if (!store) return null;
+  const { settings } = store;
 
-export default async function SettingsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ saved?: string }>;
-}) {
-  const { saved } = await searchParams;
-  const { settings } = readStore();
   return (
-    <Shell current="/settings">
+    <>
       <h1 className="font-heading text-4xl">Settings</h1>
       <p className="mt-2 max-w-xl text-muted-foreground">
         The desk scans and lists jobs. It does not send applications. Gmail is
         for follow-up after you apply yourself.
       </p>
-      {saved ? <p className="mt-4 text-sm">Saved.</p> : null}
 
       <section className="mt-8 rounded-xl border bg-card p-5">
         <h2 className="font-heading text-2xl">Profile</h2>
@@ -51,7 +48,18 @@ export default async function SettingsPage({
         </a>
       </section>
 
-      <form action={saveSettingsAction} className="mt-6 space-y-4 rounded-xl border bg-card p-5">
+      <form
+        className="mt-6 space-y-4 rounded-xl border bg-card p-5"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const form = new FormData(e.currentTarget);
+          setSaving(true);
+          void saveSettings(
+            Number(form.get("minScore") ?? 40),
+            String(form.get("keywords") ?? settings.keywords),
+          ).finally(() => setSaving(false));
+        }}
+      >
         <h2 className="font-heading text-2xl">Scan</h2>
         <div className="space-y-2">
           <Label htmlFor="minScore">Minimum match score</Label>
@@ -61,8 +69,10 @@ export default async function SettingsPage({
           <Label htmlFor="keywords">Keywords</Label>
           <Textarea id="keywords" name="keywords" rows={3} defaultValue={settings.keywords} />
         </div>
-        <Button type="submit">Save</Button>
+        <Button type="submit" disabled={saving}>
+          {saving ? "Saving…" : "Save"}
+        </Button>
       </form>
-    </Shell>
+    </>
   );
 }
