@@ -3,6 +3,7 @@ import { Shell } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { readStore } from "@/lib/store";
+import { postedLabel } from "@/lib/jobs";
 
 export const dynamic = "force-dynamic";
 
@@ -24,9 +25,9 @@ export default async function JobsPage({
         <div>
           <h1 className="font-heading text-4xl">Openings</h1>
           <p className="mt-2 max-w-xl text-muted-foreground">
-            Ranked against your CV from Kenya listings across BrighterMonday,
-            MyJobMag, Fuzu, LinkedIn, company career pages, and web search.
-            Open the link and apply yourself.
+            Ranked against your CV from Kenya listings posted in the last 7 days
+            (BrighterMonday, MyJobMag, Fuzu, LinkedIn, company pages, web).
+            Older ads are dropped.
           </p>
         </div>
         <form action={scanAction}>
@@ -58,7 +59,7 @@ export default async function JobsPage({
                   <div>
                     <h2 className="text-lg font-medium">{job.title}</h2>
                     <p className="text-sm text-muted-foreground">
-                      {job.company} · {job.location} · {job.source}
+                      {job.company} · {job.location} · {job.source} · {postedLabel(job.postedAt)}
                     </p>
                   </div>
                   <Badge>match {job.score}</Badge>
