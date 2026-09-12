@@ -2,7 +2,11 @@ import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import type { Store } from "./types";
 
-const FILE = join(process.cwd(), "data", "store.json");
+const DATA_DIR =
+  process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME
+    ? join("/tmp", "apply-desk")
+    : join(process.cwd(), "data");
+const FILE = join(DATA_DIR, "store.json");
 
 function seed(): Store {
   return {
@@ -43,7 +47,7 @@ export function readStore(): Store {
 }
 
 export function writeStore(store: Store) {
-  mkdirSync(join(process.cwd(), "data"), { recursive: true });
+  mkdirSync(DATA_DIR, { recursive: true });
   writeFileSync(FILE, JSON.stringify(store, null, 2));
 }
 
