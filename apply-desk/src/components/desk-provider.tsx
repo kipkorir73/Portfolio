@@ -2,7 +2,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import type { DeskStats } from "@/lib/stats";
+import { LOCAL_STORE_KEY, isStore, mergeStores } from "@/lib/merge";
+import { statsFrom, type DeskStats } from "@/lib/stats";
 import type { ApplicationStatus, Store } from "@/lib/types";
 
 export type DeskPayload = {
@@ -10,6 +11,8 @@ export type DeskPayload = {
   stats: DeskStats;
   jobs?: number;
   keptPrevious?: boolean;
+  imported?: number;
+  gmailReady?: boolean;
   error?: string;
 };
 
@@ -19,18 +22,41 @@ type DeskContextValue = {
   loading: boolean;
   scanning: boolean;
   error: string | null;
+  gmailReady: boolean;
   refresh: () => Promise<void>;
   scan: () => Promise<number>;
   applied: (jobId: string) => Promise<void>;
   setStatus: (id: string, status: ApplicationStatus) => Promise<void>;
   markRead: (id: string) => Promise<void>;
   saveSettings: (minScore: number, keywords: string) => Promise<void>;
+  syncInbox: () => Promise<void>;
+  disconnectGmail: () => Promise<void>;
+  persistAndLogout: () => Promise<void>;
 };
 
 const DeskContext = createContext<DeskContextValue | null>(null);
 
+function readLocal(): Store | null {
+  try {
+    const raw = localStorage.getItem(LOCAL_STORE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as unknown;
+    return isStore(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeLocal(store: Store) {
+  try {
+    localStorage.setItem(LOCAL_STORE_KEY, JSON.stringify(store));
+  } catch {
+    // private mode
+  }
+}
+
 async function readJson(res: Response) {
-  const data = (await res.json()) as DeskPayload & { error?: string; jobs?: number };
+  const data = (await res.json()) as DeskPayload;
   if (!res.ok) throw new Error(data.error || "Request failed");
   return data;
 }
@@ -41,30 +67,59 @@ export function DeskProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [scanning, setScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gmailReady, setGmailReady] = useState(false);
 
-  const applyPayload = useCallback((data: DeskPayload) => {
-    setStore(data.store);
-    setStats(data.stats);
+  const applyPayload = useCallback((data: DeskPayload, local?: Store | null) => {
+    const merged = mergeStores(data.store, local ?? null);
+    setStore(merged);
+    setStats(statsFrom(merged));
+    setGmailReady(Boolean(data.gmailReady));
     setError(null);
+    writeLocal(merged);
+    return merged;
   }, []);
 
   const refresh = useCallback(async () => {
     try {
+      const local = readLocal();
       const res = await fetch("/api/state", { cache: "no-store" });
-      applyPayload(await readJson(res));
+      const data = await readJson(res);
+      const merged = applyPayload(data, local);
+      if (local && JSON.stringify(merged) !== JSON.stringify(data.store)) {
+        await fetch("/api/desk", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ op: "persist", store: merged }),
+        });
+      }
     } catch (err) {
+      const local = readLocal();
+      if (local) {
+        setStore(local);
+        setStats(statsFrom(local));
+        setError(null);
+        return;
+      }
       setError(err instanceof Error ? err.message : "Could not load the desk");
       throw err;
     }
   }, [applyPayload]);
 
   useEffect(() => {
+    const local = readLocal();
+    if (local) {
+      setStore(local);
+      setStats(statsFrom(local));
+      setLoading(false);
+    }
     let alive = true;
     (async () => {
       try {
         await refresh();
       } catch (err) {
-        if (alive) setError(err instanceof Error ? err.message : "Could not load the desk");
+        if (alive && !readLocal()) {
+          setError(err instanceof Error ? err.message : "Could not load the desk");
+        }
       } finally {
         if (alive) setLoading(false);
       }
@@ -82,7 +137,7 @@ export function DeskProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify(body),
       });
       const data = await readJson(res);
-      applyPayload(data);
+      applyPayload(data, readLocal());
       return data;
     },
     [applyPayload],
@@ -137,6 +192,36 @@ export function DeskProvider({ children }: { children: React.ReactNode }) {
     [post],
   );
 
+  const syncInbox = useCallback(async () => {
+    const data = await post({ op: "sync" });
+    toast.success(
+      data.imported ? `Pulled ${data.imported} message${data.imported === 1 ? "" : "s"} from Gmail.` : "Gmail is up to date.",
+    );
+  }, [post]);
+
+  const disconnectGmail = useCallback(async () => {
+    await post({ op: "disconnect" });
+    toast.message("Gmail disconnected.");
+  }, [post]);
+
+  const persistAndLogout = useCallback(async () => {
+    const snapshot = store ?? readLocal();
+    if (snapshot) writeLocal(snapshot);
+    try {
+      if (snapshot) {
+        await fetch("/api/desk", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ op: "persist", store: snapshot }),
+        });
+      }
+    } catch {
+      // Browser copy is already saved.
+    }
+    await fetch("/api/logout", { method: "POST", redirect: "manual" });
+    window.location.assign("/login");
+  }, [store]);
+
   const value = useMemo(
     () => ({
       store,
@@ -144,12 +229,16 @@ export function DeskProvider({ children }: { children: React.ReactNode }) {
       loading,
       scanning,
       error,
+      gmailReady,
       refresh,
       scan,
       applied,
       setStatus,
       markRead,
       saveSettings,
+      syncInbox,
+      disconnectGmail,
+      persistAndLogout,
     }),
     [
       store,
@@ -157,12 +246,16 @@ export function DeskProvider({ children }: { children: React.ReactNode }) {
       loading,
       scanning,
       error,
+      gmailReady,
       refresh,
       scan,
       applied,
       setStatus,
       markRead,
       saveSettings,
+      syncInbox,
+      disconnectGmail,
+      persistAndLogout,
     ],
   );
 
@@ -176,11 +269,11 @@ export function useDesk() {
 }
 
 export function DeskGate({ children }: { children: React.ReactNode }) {
-  const { loading, error, refresh } = useDesk();
-  if (loading) {
+  const { loading, error, refresh, store } = useDesk();
+  if (loading && !store) {
     return <p className="text-muted-foreground">Loading desk…</p>;
   }
-  if (error) {
+  if (error && !store) {
     return (
       <div className="max-w-md">
         <h1 className="font-heading text-4xl">Could not load</h1>

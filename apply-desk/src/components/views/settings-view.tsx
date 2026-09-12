@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { GmailPanel } from "@/components/gmail-panel";
 import { useDesk } from "@/components/desk-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,6 +48,8 @@ export function SettingsView() {
           Download CV
         </a>
       </section>
+
+      <GmailPanel />
 
       <form
         className="mt-6 space-y-4 rounded-xl border bg-card p-5"

@@ -1,7 +1,17 @@
+import { isGmailConfigured } from "./gmail";
 import { statsFrom } from "./stats";
-import { readStore } from "./store";
+import { readGmailAuth, readStore } from "./store";
 
-export function getDeskPayload() {
-  const store = readStore();
-  return { store, stats: statsFrom(store) };
+export async function getDeskPayload() {
+  const store = await readStore();
+  const auth = await readGmailAuth();
+  if (auth?.email && !store.settings.emailConnected) {
+    store.settings.emailConnected = true;
+    store.settings.connectedEmail = auth.email;
+  }
+  return {
+    store,
+    stats: statsFrom(store),
+    gmailReady: isGmailConfigured(),
+  };
 }

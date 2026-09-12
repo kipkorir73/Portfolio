@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { GmailPanel } from "@/components/gmail-panel";
 import { useDesk } from "@/components/desk-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatWhen } from "@/lib/dates";
-import { PROFILE } from "@/lib/profile";
 
 export function InboxView() {
   const { store, markRead } = useDesk();
@@ -17,19 +17,17 @@ export function InboxView() {
     <>
       <h1 className="font-heading text-4xl">Inbox</h1>
       <p className="mt-2 max-w-xl text-muted-foreground">
-        Follow-up lives here. When you are ready, give the desk access to{" "}
-        {PROFILE.email} so replies, interviews, and rejections file against jobs
-        you marked as applied. Nothing is connected yet.
+        Follow-up lives here. Connect Gmail so replies, interviews, and
+        rejections file against jobs you marked as applied.
       </p>
+      <GmailPanel />
 
       {!settings.emailConnected ? (
-        <p className="mt-10 rounded-xl border bg-card p-6 text-muted-foreground">
-          Gmail is waiting on you. Apply from Openings first. Then we can wire
-          this mailbox to watch for recruiter replies — no demo connect, no
-          fake sync.
+        <p className="mt-6 text-sm text-muted-foreground">
+          After you connect, use Sync inbox. Until then this list stays empty.
         </p>
       ) : inbox.length === 0 ? (
-        <p className="mt-10 text-muted-foreground">Connected, but no messages yet.</p>
+        <p className="mt-10 text-muted-foreground">Connected, but no messages yet. Sync inbox.</p>
       ) : (
         <ul className="mt-8 space-y-4">
           {inbox.map((m) => (

@@ -32,8 +32,11 @@ Optional env vars (Site settings → Environment variables):
 
 - `DESK_PASSWORD` — login password (defaults to `sunrise-desk`)
 - `CRON_SECRET` — if you later schedule `/api/cron/daily`
+- `GOOGLE_CLIENT_ID` — Google OAuth client ID (Gmail connect)
+- `GOOGLE_CLIENT_SECRET` — Google OAuth client secret
+- `GOOGLE_REDIRECT_URI` — optional. Defaults to `https://YOUR_SITE/api/gmail/callback`
 
-After deploy, open the Netlify URL, log in, and run **Scan openings**. Scan is capped at about 6 seconds so Netlify does not time out. Buttons (I applied, status, save) use a small JSON API instead of a full page reload. Scan results live in `/tmp` and can reset when the function goes cold.
+After deploy, open the Netlify URL, log in, and run **Scan openings**. Scan is capped at about 6 seconds so Netlify does not time out. Buttons use a small JSON API. Jobs, applications, and inbox are saved in the browser and on Netlify Blobs, including when you log out.
 
 If a deploy is already live, push this repo and use **Trigger deploy** (Deploys → Trigger deploy) so Netlify rebuilds.
 
@@ -47,4 +50,15 @@ That only refreshes Kenya listings. It does not apply.
 
 ## Gmail
 
-Inbox is empty until you grant Gmail access for follow-up. Applications you mark stay in the Applied log either way.
+1. In [Google Cloud Console](https://console.cloud.google.com/apis/credentials) create an OAuth client (Web application).
+2. Enable the Gmail API.
+3. Add authorized redirect URI: `https://YOUR_NETLIFY_SITE/api/gmail/callback` (and `http://127.0.0.1:43124/api/gmail/callback` for local).
+4. If the app is in Testing, add `kipkorirc583@gmail.com` as a test user.
+5. Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` on Netlify, then redeploy.
+6. Open Inbox → **Connect Gmail** → **Sync inbox**.
+
+The desk requests read-only Gmail access. It does not send mail or apply for jobs.
+
+## Data
+
+Log out saves the desk first. The same copy is kept in this browser (`localStorage`) and on the server (Netlify Blobs, with a `/tmp` fallback).

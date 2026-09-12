@@ -8,5 +8,5 @@ export async function GET(request: NextRequest) {
   if (!hasSession(request.cookies.get(SESSION_COOKIE)?.value)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  return NextResponse.json(getDeskPayload());
+  return NextResponse.json(await getDeskPayload());
 }

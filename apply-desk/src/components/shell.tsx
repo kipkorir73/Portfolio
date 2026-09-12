@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { useDesk } from "@/components/desk-provider";
 import { PROFILE } from "@/lib/profile";
 import { Button } from "@/components/ui/button";
 
@@ -15,6 +17,8 @@ const LINKS = [
 
 export function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || "/";
+  const { persistAndLogout } = useDesk();
+  const [leaving, setLeaving] = useState(false);
   return (
     <div className="min-h-full">
       <header className="sticky top-0 z-10 border-b border-border/80 bg-background/90 backdrop-blur">
@@ -42,11 +46,18 @@ export function Shell({ children }: { children: React.ReactNode }) {
             <span className="hidden text-xs text-muted-foreground sm:inline">
               {PROFILE.email}
             </span>
-            <form action="/api/logout" method="post">
-              <Button variant="outline" size="sm" type="submit">
-                Log out
-              </Button>
-            </form>
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+              disabled={leaving}
+              onClick={() => {
+                setLeaving(true);
+                void persistAndLogout();
+              }}
+            >
+              {leaving ? "Saving…" : "Log out"}
+            </Button>
           </div>
         </div>
         <nav className="flex gap-3 overflow-x-auto border-t border-border px-4 py-2 text-sm md:hidden">

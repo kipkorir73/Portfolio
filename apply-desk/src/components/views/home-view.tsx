@@ -24,8 +24,9 @@ export function HomeView() {
           <p className="text-sm text-muted-foreground">Signed in as</p>
           <h1 className="font-heading text-4xl sm:text-5xl">{PROFILE.name}</h1>
           <p className="mt-2 max-w-xl text-muted-foreground">
-            Scan matching roles, open the link, apply yourself. The desk only
-            logs what you mark. Gmail follow-up comes after you grant access.
+            Scan matching roles, open the link, apply yourself. The desk logs
+            what you mark and keeps it when you log out. Connect Gmail from
+            Inbox to pull recruiter replies.
           </p>
         </div>
         <Button
@@ -51,7 +52,9 @@ export function HomeView() {
 
       <p className="mt-4 text-xs text-muted-foreground">
         Last scan: {formatWhen(stats.lastScanAt)}. Gmail:{" "}
-        {stats.emailConnected ? "connected" : "not connected yet — add access when you are ready to follow up"}
+        {stats.emailConnected
+          ? `connected${store.settings.connectedEmail ? ` (${store.settings.connectedEmail})` : ""}`
+          : "not connected — use Inbox to connect"}
         .
       </p>
 

@@ -3,14 +3,7 @@
 import { redirect } from "next/navigation";
 import { LOGIN_EMAIL, LOGIN_PASSWORD } from "@/lib/profile";
 import { clearSession, requireUser, setSession } from "@/lib/session";
-import {
-  connectEmail,
-  markApplication,
-  markJobApplied,
-  markRead,
-  runDailyScan,
-  syncInbox,
-} from "@/lib/daily";
+import { markApplication, markJobApplied, markRead, runDailyScan } from "@/lib/daily";
 import { mutateStore } from "@/lib/store";
 import type { ApplicationStatus } from "@/lib/types";
 
@@ -37,39 +30,27 @@ export async function scanAction() {
 
 export async function markAppliedAction(formData: FormData) {
   await requireUser();
-  markJobApplied(String(formData.get("jobId") ?? ""));
+  await markJobApplied(String(formData.get("jobId") ?? ""));
   redirect("/jobs?logged=1");
-}
-
-export async function connectEmailAction() {
-  await requireUser();
-  connectEmail();
-  redirect("/inbox?connected=1");
-}
-
-export async function syncInboxAction() {
-  await requireUser();
-  syncInbox();
-  redirect("/inbox?synced=1");
 }
 
 export async function setStatusAction(formData: FormData) {
   await requireUser();
   const id = String(formData.get("id") ?? "");
   const status = String(formData.get("status") ?? "") as ApplicationStatus;
-  markApplication(id, status);
+  await markApplication(id, status);
   redirect("/applications");
 }
 
 export async function readMessageAction(formData: FormData) {
   await requireUser();
-  markRead(String(formData.get("id") ?? ""));
+  await markRead(String(formData.get("id") ?? ""));
   redirect("/inbox");
 }
 
 export async function saveSettingsAction(formData: FormData) {
   await requireUser();
-  mutateStore((s) => {
+  await mutateStore((s) => {
     s.settings.autoApplyEmail = false;
     s.settings.minScore = Math.max(0, Number(formData.get("minScore") ?? 40));
     s.settings.keywords = String(formData.get("keywords") ?? s.settings.keywords);
