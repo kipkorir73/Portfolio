@@ -8,7 +8,13 @@ const KE_PLACE =
   /\b(kenya|nairobi|mombasa|kisumu|nakuru|eldoret|thika|kiambu|machakos|nyeri|kitale|kakamega|meru|kisii|malindi|kilifi|kajiado|embu)\b/i;
 
 const IT_HINT =
-  /\b(ict|it support|it officer|it assistant|it specialist|it manager|help ?desk|service desk|sysadmin|systems? admin|network admin|network engineer|support engineer|technical support|desktop (support|technician)|it technician|ict technician|information technology|information systems|infrastructure manager|noc support)\b/i;
+  /\b(ict|it support|it officer|it assistant|it specialist|it intern|it manager|help ?desk|service desk|sysadmin|systems? admin|network admin|network engineer|support engineer|technical support|desktop (support|technician)|it technician|ict technician|information technology|information systems|computer (operator|technician|teacher)|mis officer|lab technician|cabling|wifi|biometric)\b/i;
+
+const GENERALIST_HINT =
+  /\b(office assistant|administrative assistant|admin assistant|office admin|data entry|data clerk|receptionist|front office|customer (care|service|support)|call cent(re|er)|records clerk|filing|secretary|admissions|bursar|computer operator|graduate (trainee|intern)|entry[- ]level|no experience|operations assistant|office intern|clerk)\b/i;
+
+const EXCLUDE_HINT =
+  /\b(registered nurse|clinical officer|pharmacist|chef\b|heavy duty driver|truck driver|full[- ]stack|backend engineer|software engineer|data scientist|chartered accountant|advocate of the high court|welder|mason\b)\b/i;
 
 function idFrom(url: string, title: string) {
   const raw = `${url.split("?")[0]}|${title}`.toLowerCase();
@@ -60,9 +66,9 @@ const MONTHS: Record<string, number> = {
 };
 
 function withinWeek(iso: string | null, now = Date.now()) {
-  if (!iso) return false;
+  if (!iso) return true;
   const t = Date.parse(iso);
-  if (Number.isNaN(t)) return false;
+  if (Number.isNaN(t)) return true;
   const age = now - t;
   return age >= -12 * 60 * 60 * 1000 && age <= WEEK_MS;
 }
@@ -139,6 +145,7 @@ function sourceFromUrl(url: string): { source: string; channel: Channel } {
   if (/fuzu\.com/i.test(url)) return { source: "Fuzu", channel: "job_board" };
   if (/indeed\./i.test(url)) return { source: "Indeed", channel: "job_board" };
   if (/careerjet/i.test(url)) return { source: "Careerjet", channel: "job_board" };
+  if (/jobwebkenya/i.test(url)) return { source: "JobWebKenya", channel: "job_board" };
   if (/greenhouse|lever\.co|workable|smartrecruiters|recruitee|ashbyhq/i.test(url)) {
     return { source: "Company ATS", channel: "company_site" };
   }
@@ -148,8 +155,12 @@ function sourceFromUrl(url: string): { source: string; channel: Channel } {
 
 function isKenyaJob(job: Pick<Job, "location" | "url" | "source" | "description" | "title">) {
   const blob = `${job.title} ${job.location} ${job.url} ${job.source} ${job.description}`;
-  if (/brightermonday\.co\.ke|myjobmag\.co\.ke|fuzu\.com\/kenya|linkedin\.com\/jobs|ke\.linkedin/i.test(job.url)) {
-    return KE_PLACE.test(blob) || /kenya/i.test(job.location) || /kenya/i.test(job.url);
+  if (
+    /brightermonday\.co\.ke|myjobmag\.co\.ke|fuzu\.com\/kenya|ke\.indeed|indeed\.[^/]+\/.*kenya|careerjet\.co\.ke|jobwebkenya|linkedin\.com\/jobs/i.test(
+      job.url,
+    )
+  ) {
+    return true;
   }
   return KE_PLACE.test(blob);
 }
@@ -162,8 +173,8 @@ async function fetchText(url: string, ms: number) {
     const res = await fetch(url, {
       headers: {
         "user-agent": UA,
-        accept: "text/html,application/xhtml+xml",
-        "accept-language": "en-US,en;q=0.9",
+        accept: "text/html,application/xhtml+xml,application/rss+xml,application/atom+xml,application/xml,text/xml,*/*",
+        "accept-language": "en-KE,en;q=0.9",
       },
       cache: "no-store",
       redirect: "follow",
@@ -200,7 +211,8 @@ function parseBrighterMonday(html: string, scannedAt: string, keywords: string):
     );
     const postedAt =
       parsePosted(card.match(/(\d+\s+(?:minute|hour|day|week|month)s?\s+ago)/i)?.[1] ?? "") ||
-      (/>\s*New\s*</.test(card) ? parsePosted("today") : null);
+      (/>\s*New\s*</.test(card) ? parsePosted("today") : null) ||
+      scannedAt;
     if (!href || !title || !withinWeek(postedAt)) continue;
     const company =
       decode(card.match(/<p class="text-sm text-blue-700[^"]*">\s*([^<]+)\s*<\/p>/)?.[1] ?? "") ||
@@ -217,7 +229,7 @@ function parseBrighterMonday(html: string, scannedAt: string, keywords: string):
           source: "BrighterMonday",
           url: href,
           description: `${company} · ${location}`,
-          postedAt: postedAt ?? scannedAt,
+          postedAt,
           scannedAt,
         },
         keywords,
@@ -233,7 +245,9 @@ function parseMyJobMag(html: string, scannedAt: string, keywords: string): Job[]
     const href = block.match(/href="(\/job\/[^"]+)"/)?.[1];
     const titleRaw = block.match(/<h2>\s*<a href="\/job\/[^"]+">([^<]+)<\/a>/)?.[1];
     const postedAt = parsePosted(block.match(/id="job-date">([^<]+)/)?.[1] ?? "");
-    if (!href || !titleRaw || !withinWeek(postedAt)) continue;
+    if (!href || !titleRaw) continue;
+    const when = postedAt ?? scannedAt;
+    if (!withinWeek(when)) continue;
     const title = strip(titleRaw).replace(/\s+at\s+.+$/i, "").trim() || strip(titleRaw);
     const company =
       block.match(/alt="([^"]+)"/)?.[1]?.replace(/\s+logo$/i, "").trim() ||
@@ -250,7 +264,7 @@ function parseMyJobMag(html: string, scannedAt: string, keywords: string): Job[]
           source: "MyJobMag",
           url,
           description: description || `${title} listed on MyJobMag Kenya.`,
-          postedAt: postedAt ?? scannedAt,
+          postedAt: when,
           scannedAt,
         },
         keywords,
@@ -271,7 +285,7 @@ function parseFuzu(html: string, scannedAt: string, keywords: string): Job[] {
       if (data["@type"] !== "ItemList") continue;
       for (const item of data.itemListElement ?? []) {
         if (!item.name || !item.url || !/\/kenya\//i.test(item.url)) continue;
-        const postedAt = parsePosted(item.datePosted ?? "");
+        const postedAt = parsePosted(item.datePosted ?? "") ?? scannedAt;
         if (!withinWeek(postedAt)) continue;
         jobs.push(
           makeJob(
@@ -305,7 +319,8 @@ function parseLinkedIn(html: string, scannedAt: string, keywords: string): Job[]
     const location = decode(card.match(/job-search-card__location[^>]*>([\s\S]*?)<\/span>/)?.[1] ?? "Kenya");
     const postedAt =
       parsePosted(card.match(/job-search-card__listdate[^>]*datetime="([^"]+)"/)?.[1] ?? "") ||
-      parsePosted(card.match(/job-search-card__listdate[\s\S]{0,400}?<\/time>/)?.[0] ?? "");
+      parsePosted(card.match(/job-search-card__listdate[\s\S]{0,400}?<\/time>/)?.[0] ?? "") ||
+      scannedAt;
     if (!href || !title || !withinWeek(postedAt)) continue;
     jobs.push(
       makeJob(
@@ -316,7 +331,7 @@ function parseLinkedIn(html: string, scannedAt: string, keywords: string): Job[]
           source: "LinkedIn",
           url: cleanUrl(href),
           description: `${company} · ${location}`,
-          postedAt: postedAt ?? scannedAt,
+          postedAt,
           scannedAt,
         },
         keywords,
@@ -335,7 +350,7 @@ function parseDuckDuckGo(html: string, scannedAt: string, keywords: string): Job
     const url = cleanUrl(decodeURIComponent(m[1]));
     const title = decode(m[2]);
     if (!title || !url.startsWith("http")) continue;
-    const postedAt = parsePosted(title);
+    const postedAt = parsePosted(title) ?? scannedAt;
     if (!withinWeek(postedAt)) continue;
     if (!/job|career|linkedin|greenhouse|lever|workable|vacancy|hiring|brightermonday|myjobmag/i.test(`${url} ${title}`)) {
       continue;
@@ -356,7 +371,53 @@ function parseDuckDuckGo(html: string, scannedAt: string, keywords: string): Job
           source: sourceFromUrl(url).source,
           url,
           description: title,
-          postedAt: postedAt ?? scannedAt,
+          postedAt,
+          scannedAt,
+        },
+        keywords,
+      ),
+    );
+  }
+  return jobs;
+}
+
+function tagFrom(xml: string, name: string) {
+  const m = xml.match(new RegExp(`<${name}[^>]*>(?:<!\\[CDATA\\[)?([\\s\\S]*?)(?:\\]\\]>)?<\\/${name}>`, "i"));
+  return m ? strip(m[1]) : "";
+}
+
+function parseRss(xml: string, scannedAt: string, keywords: string, sourceHint: string): Job[] {
+  const jobs: Job[] = [];
+  const chunks = xml.split(/<item[\s>]/i).slice(1);
+  const entries = chunks.length ? chunks : xml.split(/<entry[\s>]/i).slice(1);
+  for (const chunk of entries) {
+    const title = tagFrom(chunk, "title");
+    const link =
+      chunk.match(/<link[^>]*href="([^"]+)"/i)?.[1] ||
+      tagFrom(chunk, "link") ||
+      tagFrom(chunk, "guid");
+    if (!title || !link || !link.startsWith("http")) continue;
+    const description = tagFrom(chunk, "description") || tagFrom(chunk, "summary") || title;
+    const postedAt =
+      parsePosted(tagFrom(chunk, "pubDate") || tagFrom(chunk, "updated") || tagFrom(chunk, "published") || "") ||
+      scannedAt;
+    if (!withinWeek(postedAt)) continue;
+    let company = sourceHint;
+    try {
+      company = new URL(link).hostname.replace(/^www\./, "");
+    } catch {
+      // keep source
+    }
+    jobs.push(
+      makeJob(
+        {
+          title,
+          company,
+          location: "Kenya",
+          source: sourceFromUrl(link).source === "Web" ? sourceHint : sourceFromUrl(link).source,
+          url: cleanUrl(link),
+          description: description.slice(0, 420),
+          postedAt,
           scannedAt,
         },
         keywords,
@@ -367,21 +428,34 @@ function parseDuckDuckGo(html: string, scannedAt: string, keywords: string): Job
 }
 
 const PRIMARY_URLS = [
-  "https://www.brightermonday.co.ke/jobs?q=IT+support",
-  "https://www.brightermonday.co.ke/jobs?q=ICT",
+  "https://ke.indeed.com/rss?q=IT+support&l=Kenya",
+  "https://ke.indeed.com/rss?q=ICT&l=Nairobi",
+  "https://ke.indeed.com/rss?q=help+desk&l=Kenya",
+  "https://ke.indeed.com/rss?q=office+assistant&l=Kenya",
+  "https://ke.indeed.com/rss?q=data+entry&l=Kenya",
+  "https://ke.indeed.com/rss?q=customer+service&l=Nairobi",
+  "https://www.careerjet.co.ke/search/rss?s=IT+support&l=Kenya",
+  "https://www.careerjet.co.ke/search/rss?s=office+assistant&l=Kenya",
   "https://www.myjobmag.co.ke/jobs-by-field/it-telecoms",
-  "https://www.myjobmag.co.ke/search/jobs?q=IT+support",
-  "https://www.fuzu.com/kenya/jobs?q=ICT",
+  "https://www.myjobmag.co.ke/jobs-by-field/admin",
+  "https://www.brightermonday.co.ke/jobs?q=IT+support",
+  "https://www.brightermonday.co.ke/jobs?q=office+assistant",
 ];
 
 const SECONDARY_URLS = [
+  "https://www.fuzu.com/kenya/jobs?q=ICT",
+  "https://www.myjobmag.co.ke/search/jobs?q=data+entry",
+  "https://www.jobwebkenya.com/?s=IT+support",
   "https://www.linkedin.com/jobs/search?keywords=IT%20Support&location=Kenya&f_TPR=r604800",
-  "https://www.linkedin.com/jobs/search?keywords=ICT%20Officer&location=Kenya&f_TPR=r604800",
-  "https://html.duckduckgo.com/html/?q=IT%20support%20jobs%20Nairobi%20Kenya%20site%3Abrightermonday.co.ke",
+  "https://html.duckduckgo.com/html/?q=IT%20support%20OR%20office%20assistant%20jobs%20Nairobi%20Kenya%20site%3Abrightermonday.co.ke",
 ];
 
 function parsePage(url: string, html: string, scannedAt: string, keywords: string): Job[] {
   try {
+    if (html.includes("<rss") || html.includes("<feed") || /\/rss|\/feed|careerjet\.co\.ke\/search\/rss/i.test(url)) {
+      const hint = url.includes("indeed") ? "Indeed" : url.includes("careerjet") ? "Careerjet" : "RSS";
+      return parseRss(html, scannedAt, keywords, hint);
+    }
     if (url.includes("brightermonday")) return parseBrighterMonday(html, scannedAt, keywords);
     if (url.includes("myjobmag")) return parseMyJobMag(html, scannedAt, keywords);
     if (url.includes("fuzu")) return parseFuzu(html, scannedAt, keywords);
@@ -414,12 +488,14 @@ export async function collectJobs(keywords: string): Promise<Job[]> {
 
   const byId = new Map<string, Job>();
   for (const job of found) {
-    if (!IT_HINT.test(job.title)) continue;
+    const blob = `${job.title} ${job.description}`;
+    if (EXCLUDE_HINT.test(blob)) continue;
+    if (!IT_HINT.test(blob) && !GENERALIST_HINT.test(blob)) continue;
     if (!isKenyaJob(job)) continue;
     if (!withinWeek(job.postedAt)) continue;
     const prev = byId.get(job.id);
     if (!prev || job.score > prev.score) byId.set(job.id, job);
   }
 
-  return [...byId.values()].sort((a, b) => b.score - a.score);
+  return [...byId.values()].sort((a, b) => b.score - a.score).slice(0, 120);
 }

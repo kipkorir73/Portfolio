@@ -19,8 +19,8 @@ export function SettingsView() {
     <>
       <h1 className="font-heading text-4xl">Settings</h1>
       <p className="mt-2 max-w-xl text-muted-foreground">
-        The desk scans and lists jobs. It does not send applications. Gmail is
-        for follow-up after you apply yourself.
+        The desk scans Kenya IT roles that match your CV, plus generalist office
+        jobs you can do. Connect Gmail with an App Password — no Google Cloud site.
       </p>
 
       <section className="mt-8 rounded-xl border bg-card p-5">

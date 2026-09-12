@@ -12,6 +12,7 @@ const LINKS = [
   { href: "/jobs", label: "Openings" },
   { href: "/applications", label: "Applied" },
   { href: "/inbox", label: "Inbox" },
+  { href: "/profile", label: "Profile" },
   { href: "/settings", label: "Settings" },
 ];
 

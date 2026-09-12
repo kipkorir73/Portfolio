@@ -182,14 +182,116 @@ export async function disconnectGmail() {
   });
 }
 
+export async function connectGmailAppPassword(email: string, appPassword: string) {
+  const user = email.trim().toLowerCase();
+  const pass = appPassword.replace(/\s+/g, "");
+  if (!user.includes("@") || pass.length < 8) {
+    throw new Error("Enter your Gmail address and a 16-character App Password.");
+  }
+  const res = await fetch("https://mail.google.com/mail/feed/atom", {
+    headers: {
+      authorization: `Basic ${Buffer.from(`${user}:${pass}`).toString("base64")}`,
+    },
+    cache: "no-store",
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!res.ok) {
+    throw new Error(
+      "Gmail rejected that password. Create an App Password at myaccount.google.com/apppasswords (2-Step Verification must be on).",
+    );
+  }
+  await writeGmailAuth({
+    email: user,
+    appPassword: pass,
+    accessToken: "",
+    refreshToken: "",
+    expiry: 0,
+  });
+  await mutateStore((s) => {
+    s.settings.emailConnected = true;
+    s.settings.connectedEmail = user;
+  });
+  const xml = await res.text();
+  await importAtom(xml, user);
+  return user;
+}
+
+function xmlTag(xml: string, name: string) {
+  const m = xml.match(new RegExp(`<${name}[^>]*>(?:<!\\[CDATA\\[)?([\\s\\S]*?)(?:\\]\\]>)?<\\/${name}>`, "i"));
+  return m ? m[1].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() : "";
+}
+
+async function importAtom(xml: string, accountEmail: string) {
+  const store = await readStore();
+  const imported: InboxMessage[] = [];
+  for (const chunk of xml.split(/<entry[\s>]/i).slice(1)) {
+    const subject = xmlTag(chunk, "title") || "(no subject)";
+    const body = xmlTag(chunk, "summary") || subject;
+    const fromRaw = xmlTag(chunk, "name") || xmlTag(chunk, "email") || "Gmail";
+    const fromEmail = xmlTag(chunk, "email") || "";
+    const issued = xmlTag(chunk, "issued") || xmlTag(chunk, "updated");
+    const id = xmlTag(chunk, "id") || `${subject}-${issued}`;
+    const app = matchApplication(store.applications, subject, `${fromRaw} ${fromEmail}`, body);
+    const kind = classify(subject, body);
+    imported.push({
+      id: `gmail-${id}`.slice(0, 80),
+      from: fromRaw,
+      fromEmail: fromEmail || accountEmail,
+      subject,
+      body: body.slice(0, 1200),
+      receivedAt: issued ? new Date(issued).toISOString() : new Date().toISOString(),
+      applicationId: app?.id ?? null,
+      kind: app && kind === "other" ? "reply" : kind,
+      unread: true,
+    });
+  }
+  await writeImported(imported, accountEmail);
+}
+
+async function writeImported(imported: InboxMessage[], email: string) {
+  await mutateStore((s) => {
+    s.settings.emailConnected = true;
+    s.settings.connectedEmail = email;
+    for (const msg of imported.reverse()) {
+      if (s.inbox.some((m) => m.id === msg.id)) continue;
+      s.inbox.unshift(msg);
+      if (msg.applicationId && (msg.kind === "reply" || msg.kind === "interview" || msg.kind === "rejection")) {
+        const app = s.applications.find((a) => a.id === msg.applicationId);
+        if (!app) continue;
+        if (msg.kind === "interview") app.status = "interview";
+        else if (msg.kind === "rejection") app.status = "rejected";
+        else if (app.status === "sent") app.status = "replied";
+      }
+    }
+    s.inbox = s.inbox.slice(0, 80);
+  });
+}
+
 export async function syncGmailInbox() {
-  const auth = await freshAuth();
+  const auth = await readGmailAuth();
+  if (auth?.appPassword) {
+    const res = await fetch("https://mail.google.com/mail/feed/atom", {
+      headers: {
+        authorization: `Basic ${Buffer.from(`${auth.email}:${auth.appPassword}`).toString("base64")}`,
+      },
+      cache: "no-store",
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok) throw new Error("Gmail sync failed. Disconnect and save a new App Password.");
+    const xml = await res.text();
+    const before = (await readStore()).inbox.length;
+    await importAtom(xml, auth.email);
+    const after = (await readStore()).inbox.length;
+    return { imported: Math.max(0, after - before), email: auth.email };
+  }
+
+  const oauth = await freshAuth();
   const store = await readStore();
   const listUrl = new URL("https://gmail.googleapis.com/gmail/v1/users/me/messages");
   listUrl.searchParams.set("maxResults", "20");
   listUrl.searchParams.set("q", "in:inbox newer_than:21d -category:promotions -category:social");
   const listRes = await fetch(listUrl, {
-    headers: { authorization: `Bearer ${auth.accessToken}` },
+    headers: { authorization: `Bearer ${oauth.accessToken}` },
     cache: "no-store",
     signal: AbortSignal.timeout(4000),
   });
@@ -203,7 +305,7 @@ export async function syncGmailInbox() {
     const msgRes = await fetch(
       `https://gmail.googleapis.com/gmail/v1/users/me/messages/${row.id}?format=full`,
       {
-        headers: { authorization: `Bearer ${auth.accessToken}` },
+        headers: { authorization: `Bearer ${oauth.accessToken}` },
         cache: "no-store",
         signal: AbortSignal.timeout(3500),
       },
@@ -236,7 +338,7 @@ export async function syncGmailInbox() {
 
   await mutateStore((s) => {
     s.settings.emailConnected = true;
-    s.settings.connectedEmail = auth.email;
+    s.settings.connectedEmail = oauth.email;
     for (const msg of imported.reverse()) {
       if (s.inbox.some((m) => m.id === msg.id)) continue;
       s.inbox.unshift(msg);
@@ -251,5 +353,5 @@ export async function syncGmailInbox() {
     s.inbox = s.inbox.slice(0, 80);
   });
 
-  return { imported: imported.length, email: auth.email };
+  return { imported: imported.length, email: oauth.email };
 }

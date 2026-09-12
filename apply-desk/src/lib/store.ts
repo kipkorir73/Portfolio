@@ -15,6 +15,7 @@ export type GmailAuth = {
   refreshToken: string;
   expiry: number;
   email: string;
+  appPassword?: string;
 };
 
 function seed(): Store {
@@ -22,8 +23,9 @@ function seed(): Store {
     settings: {
       autoApplyEmail: false,
       dailyCap: 6,
-      minScore: 22,
-      keywords: "IT support, helpdesk, systems administrator, network, Nairobi, ICT",
+      minScore: 10,
+      keywords:
+        "IT support, helpdesk, systems administrator, network, Nairobi, ICT, office assistant, data entry, customer service, receptionist, computer operator",
       emailConnected: false,
       connectedEmail: null,
       lastScanAt: null,
@@ -32,6 +34,11 @@ function seed(): Store {
     jobs: [],
     applications: [],
     inbox: [],
+    profile: {
+      cvFileName: null,
+      cvUploadedAt: null,
+      cvText: null,
+    },
   };
 }
 
@@ -86,18 +93,25 @@ async function writeBlob(key: string, value: unknown) {
 function asAuth(value: unknown): GmailAuth | null {
   if (!value || typeof value !== "object") return null;
   const v = value as GmailAuth;
-  if (!v.accessToken && !v.refreshToken) return null;
   if (!v.email) return null;
+  if (!v.accessToken && !v.refreshToken && !v.appPassword) return null;
   return v;
+}
+
+function normalizeStore(store: Store): Store {
+  if (!store.profile) {
+    store.profile = { cvFileName: null, cvUploadedAt: null, cvText: null };
+  }
+  return store;
 }
 
 async function loadStore(): Promise<Store> {
   const [fromBlob, fromFile] = await Promise.all([readBlob<Store>("desk"), Promise.resolve(readJsonFile<Store>(FILE))]);
   const blobOk = fromBlob && Array.isArray(fromBlob.jobs);
   const fileOk = fromFile && Array.isArray(fromFile.jobs);
-  if (blobOk && fileOk) return mergeStores(fromBlob, fromFile);
-  if (blobOk) return fromBlob;
-  if (fileOk) return fromFile;
+  if (blobOk && fileOk) return normalizeStore(mergeStores(fromBlob, fromFile));
+  if (blobOk) return normalizeStore(fromBlob);
+  if (fileOk) return normalizeStore(fromFile);
   return seed();
 }
 
@@ -162,4 +176,57 @@ export async function writeGmailAuth(auth: GmailAuth | null) {
 
 export function peekStore() {
   return memory;
+}
+
+const CV_FILE = join(DATA_DIR, "cv.bin");
+const CV_META = join(DATA_DIR, "cv-meta.json");
+
+export async function saveCvFile(buffer: Buffer, filename: string, mime: string) {
+  const meta = { filename, mime, size: buffer.length };
+  try {
+    mkdirSync(DATA_DIR, { recursive: true });
+    writeFileSync(CV_FILE, buffer);
+    writeJsonFile(CV_META, meta);
+  } catch {
+    // blobs still save
+  }
+  try {
+    const store = await blobs();
+    if (store) {
+      await store.set("cv-file", buffer.toString("base64"), { metadata: { filename, mime, encoding: "base64" } });
+    }
+  } catch {
+    // ignore
+  }
+  return meta;
+}
+
+export async function readCvFile(): Promise<{ buffer: Buffer; filename: string; mime: string } | null> {
+  try {
+    const store = await blobs();
+    if (store) {
+      const raw = await store.get("cv-file", { type: "text" });
+      if (raw) {
+        const meta = readJsonFile<{ filename: string; mime: string }>(CV_META);
+        return {
+          buffer: Buffer.from(raw, "base64"),
+          filename: meta?.filename || "cv.pdf",
+          mime: meta?.mime || "application/pdf",
+        };
+      }
+    }
+  } catch {
+    // file fallback
+  }
+  try {
+    if (!existsSync(CV_FILE)) return null;
+    const meta = readJsonFile<{ filename: string; mime: string }>(CV_META);
+    return {
+      buffer: readFileSync(CV_FILE),
+      filename: meta?.filename || "cv.pdf",
+      mime: meta?.mime || "application/pdf",
+    };
+  } catch {
+    return null;
+  }
 }

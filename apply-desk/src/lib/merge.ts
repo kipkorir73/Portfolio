@@ -55,12 +55,15 @@ export function mergeStores(server: Store, local: Store | null | undefined): Sto
         : byId(
             localScan >= serverScan ? [...server.jobs, ...local.jobs] : [...local.jobs, ...server.jobs],
             preferJob,
-          ).slice(0, 80);
+          ).slice(0, 120);
 
   return {
     jobs,
     applications: byId([...server.applications, ...local.applications], preferApp),
     inbox: byId([...server.inbox, ...local.inbox], preferMsg).slice(0, 80),
+    profile: later(server.profile?.cvUploadedAt, local.profile?.cvUploadedAt) === local.profile?.cvUploadedAt
+      ? local.profile ?? server.profile ?? { cvFileName: null, cvUploadedAt: null, cvText: null }
+      : server.profile ?? local.profile ?? { cvFileName: null, cvUploadedAt: null, cvText: null },
     settings: {
       autoApplyEmail: false,
       dailyCap: local.settings.dailyCap || server.settings.dailyCap,

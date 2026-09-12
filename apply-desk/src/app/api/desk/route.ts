@@ -5,7 +5,7 @@ import {
   markRead,
   runDailyScan,
 } from "@/lib/daily";
-import { disconnectGmail, isGmailConfigured, syncGmailInbox } from "@/lib/gmail";
+import { connectGmailAppPassword, disconnectGmail, syncGmailInbox } from "@/lib/gmail";
 import { isStore } from "@/lib/merge";
 import { getDeskPayload } from "@/lib/payload";
 import { hasSession, SESSION_COOKIE } from "@/lib/session";
@@ -23,6 +23,8 @@ type Body = {
   minScore?: number;
   keywords?: string;
   store?: Store;
+  email?: string;
+  appPassword?: string;
 };
 
 export async function POST(request: NextRequest) {
@@ -67,13 +69,11 @@ export async function POST(request: NextRequest) {
       await replaceStore(body.store);
       return NextResponse.json(await getDeskPayload());
     }
+    if (op === "gmail-app" && body.email && body.appPassword) {
+      await connectGmailAppPassword(body.email, body.appPassword);
+      return NextResponse.json(await getDeskPayload());
+    }
     if (op === "sync") {
-      if (!isGmailConfigured()) {
-        return NextResponse.json(
-          { error: "Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET on Netlify, then connect Gmail." },
-          { status: 400 },
-        );
-      }
       const result = await syncGmailInbox();
       return NextResponse.json({ ...(await getDeskPayload()), imported: result.imported });
     }

@@ -50,6 +50,12 @@ export type InboxMessage = {
   unread: boolean;
 };
 
+export type ProfileState = {
+  cvFileName: string | null;
+  cvUploadedAt: string | null;
+  cvText: string | null;
+};
+
 export type Settings = {
   autoApplyEmail: boolean;
   dailyCap: number;
@@ -66,4 +72,5 @@ export type Store = {
   jobs: Job[];
   applications: Application[];
   inbox: InboxMessage[];
+  profile: ProfileState;
 };

@@ -31,6 +31,7 @@ type DeskContextValue = {
   saveSettings: (minScore: number, keywords: string) => Promise<void>;
   syncInbox: () => Promise<void>;
   disconnectGmail: () => Promise<void>;
+  connectGmailApp: (email: string, appPassword: string) => Promise<void>;
   persistAndLogout: () => Promise<void>;
 };
 
@@ -204,6 +205,14 @@ export function DeskProvider({ children }: { children: React.ReactNode }) {
     toast.message("Gmail disconnected.");
   }, [post]);
 
+  const connectGmailApp = useCallback(
+    async (email: string, appPassword: string) => {
+      await post({ op: "gmail-app", email, appPassword });
+      toast.success("Gmail connected.");
+    },
+    [post],
+  );
+
   const persistAndLogout = useCallback(async () => {
     const snapshot = store ?? readLocal();
     if (snapshot) writeLocal(snapshot);
@@ -238,6 +247,7 @@ export function DeskProvider({ children }: { children: React.ReactNode }) {
       saveSettings,
       syncInbox,
       disconnectGmail,
+      connectGmailApp,
       persistAndLogout,
     }),
     [
@@ -255,6 +265,7 @@ export function DeskProvider({ children }: { children: React.ReactNode }) {
       saveSettings,
       syncInbox,
       disconnectGmail,
+      connectGmailApp,
       persistAndLogout,
     ],
   );

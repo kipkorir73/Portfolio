@@ -32,11 +32,8 @@ Optional env vars (Site settings → Environment variables):
 
 - `DESK_PASSWORD` — login password (defaults to `sunrise-desk`)
 - `CRON_SECRET` — if you later schedule `/api/cron/daily`
-- `GOOGLE_CLIENT_ID` — Google OAuth client ID (Gmail connect)
-- `GOOGLE_CLIENT_SECRET` — Google OAuth client secret
-- `GOOGLE_REDIRECT_URI` — optional. Defaults to `https://YOUR_SITE/api/gmail/callback`
 
-After deploy, open the Netlify URL, log in, and run **Scan openings**. Scan is capped at about 6 seconds so Netlify does not time out. Buttons use a small JSON API. Jobs, applications, and inbox are saved in the browser and on Netlify Blobs, including when you log out.
+After deploy, open the Netlify URL, log in, and run **Scan openings**. Scans cover Kenya IT roles and generalist office jobs from Indeed, Careerjet, BrighterMonday, MyJobMag, Fuzu, JobWebKenya, LinkedIn, and the web.
 
 If a deploy is already live, push this repo and use **Trigger deploy** (Deploys → Trigger deploy) so Netlify rebuilds.
 
@@ -50,14 +47,18 @@ That only refreshes Kenya listings. It does not apply.
 
 ## Gmail
 
-1. In [Google Cloud Console](https://console.cloud.google.com/apis/credentials) create an OAuth client (Web application).
-2. Enable the Gmail API.
-3. Add authorized redirect URI: `https://YOUR_NETLIFY_SITE/api/gmail/callback` (and `http://127.0.0.1:43124/api/gmail/callback` for local).
-4. If the app is in Testing, add `kipkorirc583@gmail.com` as a test user.
-5. Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` on Netlify, then redeploy.
-6. Open Inbox → **Connect Gmail** → **Sync inbox**.
+Do not create a Google Cloud website. Use a Gmail App Password:
 
-The desk requests read-only Gmail access. It does not send mail or apply for jobs.
+1. Turn on [2-Step Verification](https://myaccount.google.com/signinoptions/two-step).
+2. Open [App passwords](https://myaccount.google.com/apppasswords) and create one for Mail.
+3. Inbox or Profile → paste Gmail + the 16-character password → **Connect Gmail**.
+4. **Sync inbox**.
+
+The desk only reads unread mail. It does not send applications.
+
+## Profile / CV
+
+Open **Profile** to upload another PDF/TXT CV. The next scan uses text from that file.
 
 ## Data
 

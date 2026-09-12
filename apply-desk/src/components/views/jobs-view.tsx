@@ -21,9 +21,10 @@ export function JobsView() {
         <div>
           <h1 className="font-heading text-4xl">Openings</h1>
           <p className="mt-2 max-w-xl text-muted-foreground">
-            Ranked against your CV from Kenya listings posted in the last 7 days
-            (BrighterMonday, MyJobMag, Fuzu, LinkedIn, company pages, web).
-            Older ads are dropped.
+            Ranked against your CV from Kenya listings posted in the last 7 days:
+            IT / ICT / helpdesk plus generalist office roles (data entry, admin,
+            receptionist, customer care) that you can do. Boards include Indeed,
+            Careerjet, BrighterMonday, MyJobMag, Fuzu, JobWebKenya, LinkedIn, and web search.
           </p>
         </div>
         <Button type="button" disabled={scanning} onClick={() => void scan()}>

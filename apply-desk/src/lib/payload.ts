@@ -1,4 +1,3 @@
-import { isGmailConfigured } from "./gmail";
 import { statsFrom } from "./stats";
 import { readGmailAuth, readStore } from "./store";
 
@@ -12,6 +11,6 @@ export async function getDeskPayload() {
   return {
     store,
     stats: statsFrom(store),
-    gmailReady: isGmailConfigured(),
+    gmailReady: true,
   };
 }
